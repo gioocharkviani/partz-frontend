@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -64,13 +64,13 @@ export default function Navbar() {
                         <div className="text-xs text-muted">Sell your parts</div>
                       </div>
                     </Link>
-                    <Link href="/auth/register?role=supplier" onClick={() => setDropdownOpen(false)}
+                    <Link href="/auth/register?role=Seller" onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm text-dark hover:bg-teal-wash transition-colors group">
                       <div className="w-8 h-8 rounded-xl bg-amber/20 flex items-center justify-center group-hover:bg-amber transition-colors text-dark">
                         <Truck size={14} />
                       </div>
                       <div>
-                        <div className="font-bold leading-tight">Become Supplier</div>
+                        <div className="font-bold leading-tight">Become Seller</div>
                         <div className="text-xs text-muted">Receive requests</div>
                       </div>
                     </Link>
@@ -124,7 +124,7 @@ export default function Navbar() {
             ))}
             <div className="pt-3 border-t border-teal-border mt-2 space-y-2">
               <Link href="/auth/login" onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-white bg-teal rounded-xl">
+                className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-white bg-teal rounded-xl hover:bg-teal-dark transition-colors">
                 <LogIn size={15} /> Sign In
               </Link>
               <Link href="/auth/register" onClick={() => setMobileOpen(false)}
@@ -138,3 +138,5 @@ export default function Navbar() {
     </header>
   );
 }
+
+

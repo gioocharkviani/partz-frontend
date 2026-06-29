@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "partz.ge — Car Parts Marketplace",
-  description: "Find authentic car parts from verified Georgian suppliers and shops. Search by VIN or select your vehicle.",
+  title: "partz.ge â€” Car Parts Marketplace",
+  description:
+    "Find authentic car parts from verified Georgian Sellers and shops. Search by VIN or select your vehicle.",
 };
 
 export default function RootLayout({
@@ -15,7 +16,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ka" className="h-full">
-      <body className="min-h-full flex flex-col antialiased">
+      <body
+        className="min-h-full flex flex-col antialiased"
+        suppressHydrationWarning
+      >
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

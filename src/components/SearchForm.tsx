@@ -48,17 +48,17 @@ export default function SearchForm() {
   return (
     <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
       {/* Mode toggle */}
-      <div className="flex border-b border-teal-border">
+      <div className="flex">
         <button
           onClick={() => setMode('vin')}
-          className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-all ${mode === 'vin' ? 'bg-teal text-white' : 'text-muted hover:text-dark hover:bg-teal-wash'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-all border-b-2 ${mode === 'vin' ? 'border-teal text-teal bg-teal-wash' : 'border-transparent text-muted hover:text-dark hover:bg-teal-wash'}`}
         >
           <Zap size={15} />
           VIN Code (Auto-detect)
         </button>
         <button
           onClick={() => setMode('manual')}
-          className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-all ${mode === 'manual' ? 'bg-teal text-white' : 'text-muted hover:text-dark hover:bg-teal-wash'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold transition-all border-b-2 ${mode === 'manual' ? 'border-teal text-teal bg-teal-wash' : 'border-transparent text-muted hover:text-dark hover:bg-teal-wash'}`}
         >
           <ChevronDown size={15} />
           Choose Manually

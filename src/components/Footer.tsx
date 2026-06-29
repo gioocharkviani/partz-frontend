@@ -1,9 +1,9 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { Car, Phone, Mail, MapPin, Globe2, MessageCircle, Rss } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer style={{ background: '#1a1a1a' }} className="text-white">
+    <footer style={{ background: '#001525' }} className="text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
 
@@ -38,7 +38,7 @@ export default function Footer() {
                 { href: '/parts', label: 'Find Parts' },
                 { href: '/request', label: 'Submit Request' },
                 { href: '/auth/register?role=shop', label: 'Open a Shop' },
-                { href: '/auth/register?role=supplier', label: 'Become Supplier' },
+                { href: '/auth/register?role=Seller', label: 'Become Seller' },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-white/60 hover:text-white/90 transition-colors">
@@ -82,13 +82,13 @@ export default function Footer() {
             </ul>
             <div className="mt-5 p-3.5 bg-white/10 rounded-xl">
               <p className="text-xs text-white/40 mb-0.5">Working hours</p>
-              <p className="text-sm text-white font-semibold">Mon–Sat: 10:00 – 19:00</p>
+              <p className="text-sm text-white font-semibold">Monâ€“Sat: 10:00 â€“ 19:00</p>
             </div>
           </div>
         </div>
 
         <div className="border-t border-white/15 pt-7 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/40">© 2025 partz.ge — All rights reserved.</p>
+          <p className="text-xs text-white/40">Â© 2025 partz.ge â€” All rights reserved.</p>
           <div className="flex gap-5">
             {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((item) => (
               <Link key={item} href="#" className="text-xs text-white/40 hover:text-white/90 transition-colors">
@@ -101,3 +101,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+

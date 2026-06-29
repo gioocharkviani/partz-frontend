@@ -1,4 +1,4 @@
-import SearchForm from '@/components/SearchForm';
+﻿import SearchForm from '@/components/SearchForm';
 import { Shield, Clock, Users, CheckCircle } from 'lucide-react';
 
 export default function RequestPage() {
@@ -10,7 +10,7 @@ export default function RequestPage() {
             <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-bold uppercase tracking-wider rounded-full mb-4">Free Service</span>
             <h1 className="text-3xl lg:text-4xl font-black text-white mb-3">Find Your Car Part</h1>
             <p className="text-white/75 leading-relaxed">
-              Tell us what you need — our network of 320+ verified sellers will send you competitive offers within minutes.
+              Tell us what you need â€” our network of 320+ verified sellers will send you competitive offers within minutes.
             </p>
           </div>
         </div>
@@ -28,7 +28,7 @@ export default function RequestPage() {
               <div className="space-y-4">
                 {[
                   { step: '1', text: 'Fill in the form with your vehicle details and the part you need' },
-                  { step: '2', text: 'Your request is sent to verified sellers and shop owners' },
+                  { step: '2', text: 'Your request is sent to verified sellers and Sellers' },
                   { step: '3', text: 'You receive competitive offers with prices and delivery times' },
                   { step: '4', text: 'Choose the best offer and complete your order securely' },
                 ].map((item) => (
@@ -70,3 +70,4 @@ export default function RequestPage() {
     </div>
   );
 }
+

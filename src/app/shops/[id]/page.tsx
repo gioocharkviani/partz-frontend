@@ -9,7 +9,7 @@ import ProductCard from '@/components/ProductCard';
 const shop = {
   id: 1,
   name: 'AutoParts Tbilisi',
-  description: "One of Tbilisi's largest auto parts suppliers. We stock OEM and aftermarket parts for all major European and Japanese vehicles. 15+ years of experience.",
+  description: "One of Tbilisi's largest auto parts sellers. We stock OEM and aftermarket parts for all major European and Japanese vehicles. 15+ years of experience.",
   location: 'Tbilisi, Isani District',
   phone: '+995 555 123 456',
   hours: 'Mon–Sat 09:00–19:00',

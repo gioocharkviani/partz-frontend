@@ -39,9 +39,9 @@ function RegisterForm() {
   const prefillRole = searchParams.get('role');
 
   const [userType, setUserType] = useState<UserType>(
-    prefillRole === 'supplier' || prefillRole === 'shop' ? 'seller' : null,
+    prefillRole === 'seller' || prefillRole === 'shop' ? 'seller' : null,
   );
-  const [sellerStep, setSellerStep] = useState(prefillRole === 'supplier' || prefillRole === 'shop' ? 2 : 1);
+  const [sellerStep, setSellerStep] = useState(prefillRole === 'seller' || prefillRole === 'shop' ? 2 : 1);
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -52,7 +52,7 @@ function RegisterForm() {
   const [form, setForm] = useState<FormData>({
     name: '', email: '', phone: '', password: '', confirmPassword: '',
     city: '', terms: false,
-    sellerType: prefillRole === 'shop' ? 'shop' : prefillRole === 'supplier' ? 'dealer' : null,
+    sellerType: prefillRole === 'shop' ? 'shop' : prefillRole === 'seller' ? 'dealer' : null,
     businessName: '', businessAddress: '',
     selectedBrands: [],
     brandModels: {},
@@ -289,8 +289,8 @@ function RegisterForm() {
           <p className="text-sm text-muted mb-5">This determines how you operate on partz.ge</p>
           <div className="space-y-3 mb-6">
             {[
-              { type: 'shop' as SellerType, icon: Store, title: 'Shop Owner', subtitle: 'I have a physical or online store', desc: 'Create a public storefront, list your inventory, and receive customer requests. Buyers can browse and purchase directly.', color: 'text-teal', bg: 'bg-teal/10' },
-              { type: 'dealer' as SellerType, icon: Users, title: 'Parts Dealer', subtitle: 'I source and sell parts â€” no storefront', desc: 'Receive targeted requests from buyers who need parts matching your vehicle specialization. No storefront needed.', color: 'text-dark', bg: 'bg-teal/10' },
+              { type: 'shop' as SellerType, icon: Store, title: 'Seller with Shop', subtitle: 'I have a physical or online store', desc: 'Create a public storefront, list your inventory, and receive customer requests. Buyers can browse and purchase directly.', color: 'text-teal', bg: 'bg-teal/10' },
+              { type: 'dealer' as SellerType, icon: Users, title: 'Seller / Dealer', subtitle: 'I source and sell parts — no storefront needed', desc: 'Receive targeted requests from buyers whose car brand matches your specialization. No storefront needed.', color: 'text-dark', bg: 'bg-teal/10' },
             ].map(({ type, icon: Icon, title, subtitle, desc, color, bg }) => (
               <button key={type!} onClick={() => set('sellerType', type)}
                 className={`w-full p-5 rounded-2xl border-2 text-left transition-all ${form.sellerType === type ? 'border-teal bg-teal-wash' : 'border-teal-border hover:border-teal/40'}`}>
@@ -553,7 +553,7 @@ function RegisterForm() {
             </div>
             <div className="bg-teal-wash rounded-xl p-4 text-sm space-y-1.5 border border-teal-border">
               <p className="font-bold text-dark text-xs uppercase tracking-wider mb-2">Profile Summary</p>
-              <p className="text-muted"><span className="text-dark font-semibold">Type:</span> {form.sellerType === 'shop' ? 'Shop Owner' : 'Parts Dealer'}</p>
+              <p className="text-muted"><span className="text-dark font-semibold">Type:</span> {form.sellerType === 'shop' ? 'Seller' : 'Parts Dealer'}</p>
               <p className="text-muted"><span className="text-dark font-semibold">Name:</span> {form.businessName}</p>
               <p className="text-muted"><span className="text-dark font-semibold">Location:</span> {form.city}</p>
               <p className="text-muted"><span className="text-dark font-semibold">Brands:</span> {form.selectedBrands.length} selected</p>
@@ -605,4 +605,5 @@ export default function RegisterPage() {
     </div>
   );
 }
+
 

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { ArrowRight, Shield, Clock, Star, Truck, ChevronRight, TrendingUp, Users, Zap, Search, CheckCircle } from 'lucide-react';
 import SearchForm from '@/components/SearchForm';
 import ProductCard from '@/components/ProductCard';
@@ -24,27 +24,27 @@ const featuredShops = [
 ];
 
 const categories = [
-  { name: 'Engine Parts', icon: '⚙️', count: '2.4K' },
-  { name: 'Brakes', icon: '🛑', count: '1.1K' },
-  { name: 'Suspension', icon: '🔧', count: '890' },
-  { name: 'Body & Exterior', icon: '🚗', count: '3.2K' },
-  { name: 'Electrical', icon: '⚡', count: '1.8K' },
-  { name: 'Transmission', icon: '🔩', count: '760' },
-  { name: 'Filters', icon: '💧', count: '540' },
-  { name: 'Tyres', icon: '🎯', count: '1.3K' },
+  { name: 'Engine Parts', icon: 'âš™ï¸', count: '2.4K' },
+  { name: 'Brakes', icon: 'ðŸ›‘', count: '1.1K' },
+  { name: 'Suspension', icon: 'ðŸ”§', count: '890' },
+  { name: 'Body & Exterior', icon: 'ðŸš—', count: '3.2K' },
+  { name: 'Electrical', icon: 'âš¡', count: '1.8K' },
+  { name: 'Transmission', icon: 'ðŸ”©', count: '760' },
+  { name: 'Filters', icon: 'ðŸ’§', count: '540' },
+  { name: 'Tyres', icon: 'ðŸŽ¯', count: '1.3K' },
 ];
 
 const stats = [
   { label: 'Verified Shops', value: '180+', icon: Shield },
   { label: 'Parts Listed', value: '42K+', icon: TrendingUp },
-  { label: 'Suppliers', value: '320+', icon: Truck },
+  { label: 'Sellers', value: '320+', icon: Truck },
   { label: 'Customers', value: '15K+', icon: Users },
 ];
 
 export default function HomePage() {
   return (
     <>
-      {/* ── HERO ── */}
+      {/* â”€â”€ HERO â”€â”€ */}
       <section className="gradient-hero relative overflow-hidden border-b border-teal-border">
         {/* Decorative blobs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -73,7 +73,7 @@ export default function HomePage() {
               </h1>
 
               <p className="text-muted text-lg leading-relaxed mb-8 max-w-md">
-                Search by VIN or select your vehicle. Connect with 180+ verified shops and 320+ suppliers across Georgia. Get offers in minutes.
+                Search by VIN or select your vehicle. Connect with 180+ verified shops and 320+ Sellers across Georgia. Get offers in minutes.
               </p>
 
               <div className="flex flex-wrap gap-5 mb-10">
@@ -108,7 +108,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CATEGORIES ── */}
+      {/* â”€â”€ CATEGORIES â”€â”€ */}
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-7">
@@ -131,7 +131,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── AD BANNER 1 ── */}
+      {/* â”€â”€ AD BANNER 1 â”€â”€ */}
       <section className="py-5 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-2xl bg-teal-wash border border-teal-border p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6">
@@ -148,7 +148,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── FEATURED PARTS ── */}
+      {/* â”€â”€ FEATURED PARTS â”€â”€ */}
       <section className="py-12 bg-teal-wash">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-7">
@@ -168,7 +168,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SHOPS ── */}
+      {/* â”€â”€ SHOPS â”€â”€ */}
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-7">
@@ -188,10 +188,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── LIVE ACTIVITY FEED ── */}
+      {/* â”€â”€ LIVE ACTIVITY FEED â”€â”€ */}
       <LiveActivityFeed />
 
-      {/* ── HOW IT WORKS ── */}
+      {/* â”€â”€ HOW IT WORKS â”€â”€ */}
       <section className="py-14 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-11">
@@ -202,7 +202,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               { step: '01', title: 'Describe Your Need', desc: 'Enter VIN or select your vehicle. Add a description and photos of the damaged part.', bg: 'gradient-teal', textColor: 'text-white' },
-              { step: '02', title: 'Get Offers', desc: 'Verified suppliers and shops see your request and send competitive price offers.', bg: 'bg-teal-wash border border-teal-border', textColor: 'text-teal' },
+              { step: '02', title: 'Get Offers', desc: 'Verified Sellers and shops see your request and send competitive price offers.', bg: 'bg-teal-wash border border-teal-border', textColor: 'text-teal' },
               { step: '03', title: 'Order & Receive', desc: 'Choose the best offer, pay securely, and get your part delivered or pick it up.', bg: 'bg-teal-wash border border-teal-border', textColor: 'text-teal' },
             ].map((item, i) => (
               <div key={i} className="bg-white rounded-2xl p-7 card-shadow border border-teal-border text-center hover:border-teal transition-colors">
@@ -217,7 +217,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── AD BANNER 2 — double ── */}
+      {/* â”€â”€ AD BANNER 2 â€” double â”€â”€ */}
       <section className="py-5 bg-teal-wash">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-4">
@@ -225,9 +225,9 @@ export default function HomePage() {
               <div>
                 <p className="text-xs text-subtle uppercase tracking-widest mb-1">Sponsor</p>
                 <h3 className="text-xl font-black text-dark mb-1">MegaOil Georgia</h3>
-                <p className="text-sm text-muted">Premium engine oils at wholesale prices. Free delivery over ₾200.</p>
+                <p className="text-sm text-muted">Premium engine oils at wholesale prices. Free delivery over â‚¾200.</p>
               </div>
-              <div className="shrink-0 w-14 h-14 rounded-xl bg-teal/10 border border-teal/20 flex items-center justify-center text-2xl">🛢️</div>
+              <div className="shrink-0 w-14 h-14 rounded-xl bg-teal/10 border border-teal/20 flex items-center justify-center text-2xl">ðŸ›¢ï¸</div>
             </div>
             <div className="bg-white border border-teal-border rounded-2xl p-6 flex items-center justify-between gap-4 card-shadow">
               <div>
@@ -235,13 +235,13 @@ export default function HomePage() {
                 <h3 className="text-xl font-black text-dark mb-1">TireWorld GE</h3>
                 <p className="text-sm text-muted">All-season & winter tyres. Fitting service included nationwide.</p>
               </div>
-              <div className="shrink-0 w-14 h-14 rounded-xl bg-teal/10 border border-teal-border flex items-center justify-center text-2xl">🎯</div>
+              <div className="shrink-0 w-14 h-14 rounded-xl bg-teal/10 border border-teal-border flex items-center justify-center text-2xl">ðŸŽ¯</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── ABOUT ── */}
+      {/* â”€â”€ ABOUT â”€â”€ */}
       <section className="py-14 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
@@ -251,10 +251,10 @@ export default function HomePage() {
                 Georgia&apos;s Smart Way to Buy &amp; Sell Car Parts
               </h2>
               <p className="text-muted leading-relaxed mb-4">
-                partz.ge connects car owners with a nationwide network of verified shops, dealers, and independent suppliers. Whether you need a rare OEM component or an affordable aftermarket part, our platform makes finding it simple.
+                partz.ge connects car owners with a nationwide network of verified shops, dealers, and independent Sellers. Whether you need a rare OEM component or an affordable aftermarket part, our platform makes finding it simple.
               </p>
               <p className="text-muted leading-relaxed mb-7">
-                Shop owners manage their inventory and reach thousands of buyers daily. Suppliers receive targeted part requests directly from customers. Customers compare prices and buy with confidence.
+                Sellers manage their inventory and reach thousands of buyers daily. Sellers receive targeted part requests directly from customers. Customers compare prices and buy with confidence.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 {[
@@ -306,7 +306,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* â”€â”€ CTA â”€â”€ */}
       <section className="py-16 gradient-teal relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-teal-light opacity-10 blur-3xl" />
@@ -316,7 +316,7 @@ export default function HomePage() {
             Ready to find your part?
           </h2>
           <p className="text-white/75 mb-8 text-lg">
-            Submit a free request and get offers from verified Georgian suppliers within minutes.
+            Submit a free request and get offers from verified Georgian Sellers within minutes.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/request" className="btn-primary text-base px-8 py-4">
@@ -332,3 +332,4 @@ export default function HomePage() {
     </>
   );
 }
+

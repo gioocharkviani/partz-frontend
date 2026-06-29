@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -126,7 +126,7 @@ export default function LiveActivityFeed() {
 
         <div className="grid lg:grid-cols-5 gap-5">
 
-          {/* ── LIVE REQUESTS (3/5) ── */}
+          {/* â”€â”€ LIVE REQUESTS (3/5) â”€â”€ */}
           <div className="lg:col-span-3">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -161,11 +161,11 @@ export default function LiveActivityFeed() {
                           {req.category}
                         </span>
                         {req.hasPhoto && (
-                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-teal/10 border border-teal/20 shrink-0">📷</span>
+                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-teal/10 border border-teal/20 shrink-0">ðŸ“·</span>
                         )}
                       </div>
                       <p className="text-xs text-muted">
-                        {req.brand} {req.model} · {req.year}
+                        {req.brand} {req.model} Â· {req.year}
                       </p>
                     </div>
 
@@ -175,7 +175,7 @@ export default function LiveActivityFeed() {
                           {req.offerCount} offers
                         </span>
                       ) : (
-                        <span className="block text-xs text-subtle mb-1">Waiting…</span>
+                        <span className="block text-xs text-subtle mb-1">Waitingâ€¦</span>
                       )}
                       <div className="flex items-center gap-1 justify-end text-xs text-subtle">
                         <Clock size={10} />
@@ -197,7 +197,7 @@ export default function LiveActivityFeed() {
             </div>
           </div>
 
-          {/* ── RIGHT COLUMN (2/5) ── */}
+          {/* â”€â”€ RIGHT COLUMN (2/5) â”€â”€ */}
           <div className="lg:col-span-2 flex flex-col gap-5">
 
             {/* Recent Orders */}
@@ -219,7 +219,7 @@ export default function LiveActivityFeed() {
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <p className="text-sm font-bold text-dark leading-tight line-clamp-1">{order.part}</p>
-                      <span className="text-base font-black text-teal shrink-0">₾{order.price}</span>
+                      <span className="text-base font-black text-teal shrink-0">â‚¾{order.price}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
@@ -240,20 +240,20 @@ export default function LiveActivityFeed() {
               </div>
             </div>
 
-            {/* Supplier CTA */}
+            {/* Seller CTA */}
             <div className="bg-white border border-teal-border rounded-2xl p-5 card-shadow">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-                <span className="text-xs font-bold text-teal uppercase tracking-wider">For Suppliers</span>
+                <span className="text-xs font-bold text-teal uppercase tracking-wider">For Sellers</span>
               </div>
               <h4 className="text-base font-black text-dark mb-2 leading-snug">
                 These customers need your help right now
               </h4>
               <p className="text-xs text-muted mb-4 leading-relaxed">
-                Join 320+ verified suppliers receiving live part requests. Free to register — you only pay when you win business.
+                Join 320+ verified Sellers receiving live part requests. Free to register â€” you only pay when you win business.
               </p>
-              <Link href="/auth/register?role=supplier" className="btn-teal w-full justify-center py-3 text-sm">
-                Become a Supplier <ArrowRight size={14} />
+              <Link href="/auth/register?role=Seller" className="btn-teal w-full justify-center py-3 text-sm">
+                Become a Seller <ArrowRight size={14} />
               </Link>
             </div>
           </div>
@@ -263,3 +263,4 @@ export default function LiveActivityFeed() {
     </section>
   );
 }
+

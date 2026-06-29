@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { MessageCircle, CheckCircle, XCircle, DollarSign, Send, ChevronRight } from 'lucide-react';
@@ -46,7 +46,7 @@ function QuoteModal({ request, onClose }: { request: typeof incomingRequests[0];
             <h3 className="font-black text-dark text-lg">{request.part}</h3>
             <p className="text-sm text-muted">{request.vehicle}</p>
           </div>
-          <button onClick={onClose} className="text-muted hover:text-dark transition-colors p-1 text-lg leading-none">✕</button>
+          <button onClick={onClose} className="text-muted hover:text-dark transition-colors p-1 text-lg leading-none">âœ•</button>
         </div>
         <div className="bg-teal-wash rounded-xl p-4 mb-5 text-sm text-muted border border-teal-border">
           <strong className="text-dark">Customer note:</strong> {request.description}
@@ -54,7 +54,7 @@ function QuoteModal({ request, onClose }: { request: typeof incomingRequests[0];
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="field-label">Your Price (₾) *</label>
+              <label className="field-label">Your Price (â‚¾) *</label>
               <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" className="input-base" />
             </div>
             <div>
@@ -86,7 +86,7 @@ function QuoteModal({ request, onClose }: { request: typeof incomingRequests[0];
   );
 }
 
-export default function SupplierDashboard() {
+export default function SellerDashboard() {
   const [tab, setTab] = useState<Tab>('requests');
   const [quotingRequest, setQuotingRequest] = useState<typeof incomingRequests[0] | null>(null);
 
@@ -117,7 +117,7 @@ export default function SupplierDashboard() {
             { label: 'New Requests', value: String(newCount), color: 'text-teal', icon: MessageCircle },
             { label: 'Quotes Sent', value: '18', color: 'text-dark', icon: Send },
             { label: 'Accepted', value: '11', color: 'text-teal-dark', icon: CheckCircle },
-            { label: 'Revenue', value: '₾4,820', color: 'text-teal', icon: DollarSign },
+            { label: 'Revenue', value: 'â‚¾4,820', color: 'text-teal', icon: DollarSign },
           ].map(({ label, value, color, icon: Icon }) => (
             <div key={label} className="bg-white rounded-2xl p-5 card-shadow border border-teal-border">
               <Icon size={18} className={`${color} opacity-60 mb-2`} />
@@ -151,9 +151,9 @@ export default function SupplierDashboard() {
                           <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
                           {sc.label}
                         </span>
-                        {r.hasPhoto && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-wash border border-teal-border text-muted">📷 Photo</span>}
+                        {r.hasPhoto && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-wash border border-teal-border text-muted">ðŸ“· Photo</span>}
                       </div>
-                      <p className="text-sm text-muted mb-2">{r.vehicle} · {r.location} · {r.time}</p>
+                      <p className="text-sm text-muted mb-2">{r.vehicle} Â· {r.location} Â· {r.time}</p>
                       <p className="text-sm text-muted bg-teal-wash border border-teal-border rounded-lg px-3 py-2 inline-block">{r.description}</p>
                     </div>
                     {r.status === 'new' && (
@@ -179,10 +179,10 @@ export default function SupplierDashboard() {
               <div key={q.id} className="bg-white rounded-2xl p-5 card-shadow border border-teal-border flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-dark">{q.part}</h3>
-                  <p className="text-sm text-muted">Customer: {q.customer} · {q.date}</p>
+                  <p className="text-sm text-muted">Customer: {q.customer} Â· {q.date}</p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-xl font-black text-teal">₾{q.price}</span>
+                  <span className="text-xl font-black text-teal">â‚¾{q.price}</span>
                   <span className={`text-xs font-bold px-3 py-1.5 rounded-full border ${q.status === 'accepted' ? 'bg-teal/10 text-teal border-teal/20' : q.status === 'pending' ? 'bg-amber/15 text-dark border-amber/25' : 'bg-red-50 text-red-400 border-red-100'}`}>
                     {q.status.charAt(0).toUpperCase() + q.status.slice(1)}
                   </span>
@@ -197,8 +197,8 @@ export default function SupplierDashboard() {
             {[
               { label: 'Quote Acceptance Rate', value: '61%', sub: '11 of 18 quotes accepted', dark: true },
               { label: 'Avg Response Time', value: '18 min', sub: 'Target: under 30 min', dark: false },
-              { label: 'Customer Rating', value: '4.7 ★', sub: 'Based on 42 reviews', yellow: true },
-              { label: 'This Month Revenue', value: '₾1,840', sub: '+23% vs last month', dark: true },
+              { label: 'Customer Rating', value: '4.7 â˜…', sub: 'Based on 42 reviews', yellow: true },
+              { label: 'This Month Revenue', value: 'â‚¾1,840', sub: '+23% vs last month', dark: true },
               { label: 'Requests Received', value: '62', sub: 'In the last 30 days', dark: false },
               { label: 'Top Category', value: 'Electrical', sub: '38% of all requests', dark: true },
             ].map((item) => (
@@ -214,3 +214,4 @@ export default function SupplierDashboard() {
     </div>
   );
 }
+
