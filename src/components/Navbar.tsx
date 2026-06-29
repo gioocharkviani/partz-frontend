@@ -21,7 +21,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-teal-dark flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-teal flex items-center justify-center">
               <Car size={16} className="text-white" />
             </div>
             <span className="text-xl font-black text-dark tracking-tight">
