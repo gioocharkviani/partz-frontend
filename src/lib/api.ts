@@ -75,6 +75,7 @@ export const ordersApi = {
   placeOrder: (dto: { delivery_address: string; delivery_city: string; phone: string; payment_method: string; notes?: string }) =>
     post<any>('/orders', dto),
   myOrders: () => get<any[]>('/orders'),
+  sellerOrders: () => get<any[]>('/orders/seller'),
   getOrder: (id: number) => get<any>(`/orders/${id}`),
   acceptOrder: (id: number) => patch<any>(`/orders/${id}/accept`, {}),
   completeOrder: (id: number) => patch<any>(`/orders/${id}/complete`, {}),
@@ -87,10 +88,11 @@ export const requestsApi = {
     post<any>('/requests', dto),
   myRequests: () => get<any[]>('/requests/my'),
   getOffers: (requestId: number) => get<any[]>(`/requests/${requestId}/offers`),
-  acceptOffer: (requestId: number, offerId: number) => patch<any>(`/requests/${requestId}/offers/${offerId}/accept`, {}),
+  acceptOffer: (requestId: number, offerId: number, orderDto?: { delivery_address?: string; delivery_city?: string; phone?: string; payment_method?: string; notes?: string }) =>
+    patch<any>(`/requests/${requestId}/offers/${offerId}/accept`, orderDto || {}),
   rejectOffer: (requestId: number, offerId: number) => patch<any>(`/requests/${requestId}/offers/${offerId}/reject`, {}),
   incoming: () => get<any[]>('/requests/incoming'),
-  makeOffer: (requestId: number, dto: { price: number; description: string; part_number?: string }) =>
+  makeOffer: (requestId: number, dto: { price: number; description: string; part_number?: string; condition?: string; delivery_days?: string }) =>
     post<any>(`/requests/${requestId}/offer`, dto),
 };
 

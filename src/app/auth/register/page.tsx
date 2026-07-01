@@ -78,8 +78,8 @@ function RegisterForm() {
             ? 'Welcome to partz.ge! Start searching for your car parts.'
             : 'Your seller account is ready. Create your shop from the dashboard.'}
         </p>
-        <button onClick={() => router.push(userType === 'customer' ? '/parts' : '/dashboard')} className="btn-teal">
-          {userType === 'customer' ? 'Browse Parts' : 'Go to Dashboard'}
+        <button onClick={() => router.push(userType === 'customer' ? '/parts' : '/dashboard/supplier')} className="btn-teal">
+          {userType === 'customer' ? 'Browse Parts' : 'Setup Your Shop'}
         </button>
       </div>
     );

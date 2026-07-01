@@ -45,7 +45,7 @@ export default function HomePage() {
   return (
     <>
       {/* â”€â”€ HERO â”€â”€ */}
-      <section className="gradient-hero relative overflow-hidden border-b border-teal-border">
+      <section className="gradient-hero relative border-b border-teal-border min-h-[640px] lg:min-h-[700px]">
         {/* Decorative blobs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-teal opacity-[0.06] blur-3xl" />
@@ -53,11 +53,11 @@ export default function HomePage() {
           <div className="absolute -bottom-16 right-1/3 w-64 h-64 rounded-full bg-teal opacity-[0.05] blur-3xl" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
-          <div className="grid lg:grid-cols-2 gap-14 items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-16">
+          <div className="grid lg:grid-cols-2 gap-14 items-start">
 
             {/* Left copy */}
-            <div>
+            <div className="lg:self-center lg:pt-4">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-teal text-xs font-bold uppercase tracking-wider mb-6 border border-teal-border bg-teal-wash">
                 <Zap size={11} className="fill-teal" />
                 Georgia&apos;s #1 Car Parts Marketplace
@@ -101,7 +101,7 @@ export default function HomePage() {
             </div>
 
             {/* Search form */}
-            <div>
+            <div className="self-start">
               <SearchForm />
             </div>
           </div>
