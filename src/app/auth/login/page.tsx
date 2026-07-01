@@ -1,20 +1,32 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Car, Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { authApi, saveAuth } from '@/lib/api';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setLoading(false);
+    try {
+      const res = await authApi.login({ email, password });
+      saveAuth(res.access_token, res.user);
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Invalid credentials');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,16 +48,15 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-xs font-bold text-navy/60 uppercase tracking-wider mb-2">Email Address</label>
-              <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/40" />
+              <label className="field-label mb-2">Email Address</label>
+              <div className="input-wrap">
+                <span className="input-icon"><Mail size={15} /></span>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="input-base pl-10"
                 />
               </div>
             </div>
@@ -53,26 +64,31 @@ export default function LoginPage() {
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-bold text-navy/60 uppercase tracking-wider">Password</label>
+                <label className="field-label">Password</label>
                 <Link href="/auth/forgot-password" className="text-xs text-teal font-semibold hover:text-teal-dark transition-colors">
                   Forgot password?
                 </Link>
               </div>
-              <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/40" />
+              <div className="input-wrap">
+                <span className="input-icon"><Lock size={15} /></span>
                 <input
                   type={showPass ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Your password"
                   required
-                  className="input-base pl-10 pr-10"
                 />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-navy/40 hover:text-navy transition-colors">
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                <button type="button" onClick={() => setShowPass(!showPass)} className="input-end hover:text-dark transition-colors">
+                  {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
+
+            {error && (
+              <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"

@@ -1,8 +1,9 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, ChevronDown, Car, Search, User, LogIn, Store, Truck } from 'lucide-react';
+import { Menu, X, ChevronDown, Car, Search, User, LogIn, Store, Truck, ShoppingCart } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 const navLinks = [
   { href: '/shops', label: 'Shops' },
@@ -13,6 +14,7 @@ const navLinks = [
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { count } = useCart();
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-teal-border shadow-sm">
@@ -32,21 +34,15 @@ export default function Navbar() {
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-0.5">
             {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-4 py-2 text-sm font-semibold text-muted hover:text-teal rounded-lg hover:bg-teal-wash transition-all"
-              >
+              <Link key={link.href} href={link.href}
+                className="px-4 py-2 text-sm font-semibold text-muted hover:text-teal rounded-lg hover:bg-teal-wash transition-all">
                 {link.label}
               </Link>
             ))}
 
-            {/* Register dropdown */}
             <div className="relative ml-1">
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-muted hover:text-teal rounded-lg hover:bg-teal-wash transition-all"
-              >
+              <button onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-muted hover:text-teal rounded-lg hover:bg-teal-wash transition-all">
                 Register
                 <ChevronDown size={13} className={`transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -64,9 +60,9 @@ export default function Navbar() {
                         <div className="text-xs text-muted">Sell your parts</div>
                       </div>
                     </Link>
-                    <Link href="/auth/register?role=Seller" onClick={() => setDropdownOpen(false)}
+                    <Link href="/auth/register?role=seller" onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm text-dark hover:bg-teal-wash transition-colors group">
-                      <div className="w-8 h-8 rounded-xl bg-amber/20 flex items-center justify-center group-hover:bg-amber transition-colors text-dark">
+                      <div className="w-8 h-8 rounded-xl bg-teal/10 flex items-center justify-center group-hover:bg-teal group-hover:text-white transition-colors text-teal">
                         <Truck size={14} />
                       </div>
                       <div>
@@ -74,13 +70,13 @@ export default function Navbar() {
                         <div className="text-xs text-muted">Receive requests</div>
                       </div>
                     </Link>
-                    <Link href="/auth/register?role=customer" onClick={() => setDropdownOpen(false)}
+                    <Link href="/auth/register" onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm text-dark hover:bg-teal-wash transition-colors group">
                       <div className="w-8 h-8 rounded-xl bg-teal-border flex items-center justify-center group-hover:bg-teal group-hover:text-white transition-colors text-muted">
                         <User size={14} />
                       </div>
                       <div>
-                        <div className="font-bold leading-tight">Customer Account</div>
+                        <div className="font-bold leading-tight">Buyer Account</div>
                         <div className="text-xs text-muted">Buy & request parts</div>
                       </div>
                     </Link>
@@ -92,23 +88,42 @@ export default function Navbar() {
 
           {/* Right actions */}
           <div className="hidden md:flex items-center gap-2">
-            <Link href="/request" className="p-2 text-muted hover:text-teal hover:bg-teal-wash rounded-lg transition-colors">
+            <Link href="/parts" className="p-2 text-muted hover:text-teal hover:bg-teal-wash rounded-lg transition-colors">
               <Search size={17} />
             </Link>
+
+            {/* Cart */}
+            <Link href="/cart" className="relative p-2 text-muted hover:text-teal hover:bg-teal-wash rounded-lg transition-colors">
+              <ShoppingCart size={17} />
+              {count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-teal text-white text-[10px] font-black rounded-full flex items-center justify-center">
+                  {count > 9 ? '9+' : count}
+                </span>
+              )}
+            </Link>
+
             <Link href="/dashboard" className="flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-muted hover:text-teal hover:bg-teal-wash rounded-lg transition-colors border border-teal-border">
-              <User size={14} />
-              Dashboard
+              <User size={14} /> Dashboard
             </Link>
             <Link href="/auth/login" className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-teal rounded-lg hover:bg-teal-dark transition-colors">
-              <LogIn size={14} />
-              Sign In
+              <LogIn size={14} /> Sign In
             </Link>
           </div>
 
           {/* Mobile toggle */}
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-dark rounded-lg hover:bg-teal-wash transition-colors">
-            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <Link href="/cart" className="relative p-2 text-dark rounded-lg hover:bg-teal-wash transition-colors">
+              <ShoppingCart size={20} />
+              {count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-teal text-white text-[10px] font-black rounded-full flex items-center justify-center">
+                  {count}
+                </span>
+              )}
+            </Link>
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 text-dark rounded-lg hover:bg-teal-wash transition-colors">
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -124,7 +139,7 @@ export default function Navbar() {
             ))}
             <div className="pt-3 border-t border-teal-border mt-2 space-y-2">
               <Link href="/auth/login" onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-white bg-teal rounded-xl hover:bg-teal-dark transition-colors">
+                className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-white bg-teal rounded-xl">
                 <LogIn size={15} /> Sign In
               </Link>
               <Link href="/auth/register" onClick={() => setMobileOpen(false)}
@@ -138,5 +153,3 @@ export default function Navbar() {
     </header>
   );
 }
-
-

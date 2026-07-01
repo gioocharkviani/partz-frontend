@@ -1,4 +1,4 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
 import { ShoppingCart, Store, Tag } from 'lucide-react';
 
 interface Product {
@@ -12,31 +12,47 @@ interface Product {
   condition: 'new' | 'used' | 'refurbished';
 }
 
+const PART_IMAGES: Record<string, string> = {
+  'Engine':       'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&q=80',
+  'Electrical':   'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
+  'Brakes':       'https://images.unsplash.com/photo-1600861194802-a2b11076bc51?w=600&q=80',
+  'Suspension':   'https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=600&q=80',
+  'Body & Exterior': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=80',
+  'Lighting':     'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=80',
+  'Transmission': 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&q=80',
+  'default':      'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&q=80',
+};
+
 export default function ProductCard({ product }: { product: Product }) {
   const conditionColors = {
     new: 'bg-teal/10 text-teal border-teal/20',
     used: 'bg-teal-wash text-muted border-teal-border',
-    refurbished: 'bg-teal-wash text-teal-dark border-teal-border',
+    refurbished: 'bg-amber-light text-amber border-amber/20',
   };
+
+  const imgSrc = product.image || PART_IMAGES[product.category] || PART_IMAGES['default'];
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-teal-border card-shadow card-shadow-hover group">
-      {/* Image area */}
-      <div className="relative h-44 bg-teal-wash overflow-hidden">
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="text-5xl opacity-30">âš™ï¸</div>
-        </div>
-        <span className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full border ${conditionColors[product.condition]}`}>
+      {/* Image */}
+      <div className="relative h-44 overflow-hidden bg-cream">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imgSrc}
+          alt={product.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        <span className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full border backdrop-blur-sm ${conditionColors[product.condition]}`}>
           {product.condition.charAt(0).toUpperCase() + product.condition.slice(1)}
         </span>
-        <div className="absolute inset-0 bg-teal/0 group-hover:bg-teal/3 transition-colors" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
 
       {/* Content */}
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h3 className="font-bold text-dark text-sm leading-tight line-clamp-2">{product.name}</h3>
-          <span className="text-lg font-black text-teal whitespace-nowrap">â‚¾{product.price}</span>
+          <span className="text-lg font-black text-teal whitespace-nowrap">₾{product.price}</span>
         </div>
 
         <div className="flex items-center gap-1.5 text-xs text-muted mb-1">
@@ -65,4 +81,3 @@ export default function ProductCard({ product }: { product: Product }) {
     </div>
   );
 }
-
