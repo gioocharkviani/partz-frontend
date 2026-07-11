@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Shield, Clock, Users, CheckCircle, Send, ChevronDown, LogIn } from 'lucide-react';
-import { getUser, shopsApi, requestsApi } from '@/lib/api';
+import { Shield, Clock, Users, CheckCircle, Send, ChevronDown, LogIn, Camera, X } from 'lucide-react';
+import { getUser, shopsApi, requestsApi, uploadsApi, resolveUploadUrl } from '@/lib/api';
 
 export default function RequestPage() {
   const router = useRouter();
@@ -19,6 +19,9 @@ export default function RequestPage() {
   const [year, setYear] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [description, setDescription] = useState('');
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -37,6 +40,19 @@ export default function RequestPage() {
     setModelId('');
   }, [brandId]);
 
+  const handleFiles = async (files: FileList | null) => {
+    if (!files) return;
+    setUploading(true);
+    try {
+      for (const file of Array.from(files).slice(0, 4 - images.length)) {
+        const { url } = await uploadsApi.upload(file);
+        setImages((prev) => [...prev, url]);
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) { router.push('/auth/login?redirect=/request'); return; }
@@ -49,6 +65,7 @@ export default function RequestPage() {
         year: year || undefined,
         description,
         category_id: categoryId ? Number(categoryId) : undefined,
+        images: images.length ? images : undefined,
       });
       setDone(true);
     } catch (err: any) {
@@ -189,6 +206,33 @@ export default function RequestPage() {
                       className="input-base resize-none"
                     />
                     <p className="text-xs text-muted mt-1">Be specific — condition preference, OEM vs aftermarket, part number if known</p>
+                  </div>
+
+                  {/* Photos */}
+                  <div>
+                    <label className="field-label">Photos (optional)</label>
+                    <div
+                      onClick={() => fileRef.current?.click()}
+                      className="border-2 border-dashed border-teal-border rounded-xl p-5 text-center cursor-pointer hover:border-teal/50 hover:bg-teal-wash/50 transition-all">
+                      <Camera size={22} className="mx-auto mb-1.5 text-dark/30" />
+                      <p className="text-xs font-medium text-muted">{uploading ? 'Uploading…' : 'Click to add photos of the damaged part (max 4)'}</p>
+                      <input ref={fileRef} type="file" accept="image/*" multiple hidden disabled={uploading}
+                        onChange={(e) => handleFiles(e.target.files)} />
+                    </div>
+                    {images.length > 0 && (
+                      <div className="flex gap-2 flex-wrap mt-3">
+                        {images.map((url, i) => (
+                          <div key={i} className="relative group">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={resolveUploadUrl(url)} alt="" className="w-16 h-16 object-cover rounded-lg border border-teal-border" />
+                            <button type="button" onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
+                              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-teal text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <X size={10} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Brand match notice */}

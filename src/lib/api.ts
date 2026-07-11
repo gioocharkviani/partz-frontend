@@ -112,7 +112,7 @@ export const ordersApi = {
 
 /* ─── Requests ─── */
 export const requestsApi = {
-  create: (dto: { brand_id: number; model_id?: number; year?: string; description: string; category_id?: number }) =>
+  create: (dto: { brand_id: number; model_id?: number; year?: string; description: string; category_id?: number; images?: string[] }) =>
     post<any>('/requests', dto),
   myRequests: () => get<any[]>('/requests/my'),
   getOffers: (requestId: number) => get<any[]>(`/requests/${requestId}/offers`),
@@ -120,6 +120,7 @@ export const requestsApi = {
     patch<any>(`/requests/${requestId}/offers/${offerId}/accept`, orderDto || {}),
   rejectOffer: (requestId: number, offerId: number) => patch<any>(`/requests/${requestId}/offers/${offerId}/reject`, {}),
   incoming: () => get<any[]>('/requests/incoming'),
+  dismiss: (requestId: number) => patch<{ success: boolean }>(`/requests/${requestId}/dismiss`, {}),
   makeOffer: (requestId: number, dto: { price: number; description: string; part_number?: string; condition?: string; delivery_days?: string }) =>
     post<any>(`/requests/${requestId}/offer`, dto),
 };

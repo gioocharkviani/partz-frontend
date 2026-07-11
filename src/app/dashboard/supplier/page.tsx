@@ -812,6 +812,17 @@ export default function SellerDashboard() {
   const [loading, setLoading] = useState(true);
   const [quotingRequest, setQuotingRequest] = useState<any>(null);
   const [accepting, setAccepting] = useState<number | null>(null);
+  const [dismissingId, setDismissingId] = useState<number | null>(null);
+
+  const handleDismiss = async (requestId: number) => {
+    setDismissingId(requestId);
+    try {
+      await requestsApi.dismiss(requestId);
+      setRequests((prev) => prev.filter((r) => r.id !== requestId));
+    } finally {
+      setDismissingId(null);
+    }
+  };
 
   const loadShop = async () => {
     const sh = await shopsApi.myShop().catch(() => null);
@@ -974,12 +985,25 @@ export default function SellerDashboard() {
                             <p className="text-sm text-muted bg-teal-wash border border-teal-border rounded-lg px-3 py-2">
                               {r.description}
                             </p>
+                            {(r.images || []).length > 0 && (
+                              <div className="flex gap-2 mt-2">
+                                {r.images.map((url: string, i: number) => (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img key={i} src={resolveUploadUrl(url)} alt="" className="w-14 h-14 object-cover rounded-lg border border-teal-border" />
+                                ))}
+                              </div>
+                            )}
                           </div>
                           {r.status === 'open' && (
                             <div className="flex gap-2 shrink-0">
                               <button onClick={() => setQuotingRequest(r)}
                                 className="flex items-center gap-1.5 px-4 py-2.5 bg-teal text-white text-sm font-bold rounded-xl hover:bg-teal-dark transition-colors">
                                 <Send size={14} /> Quote
+                              </button>
+                              <button onClick={() => handleDismiss(r.id)} disabled={dismissingId === r.id}
+                                title="I don't have this part"
+                                className="flex items-center gap-1.5 px-3 py-2.5 border border-teal-border text-muted text-sm font-bold rounded-xl hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50">
+                                {dismissingId === r.id ? <span className="w-3.5 h-3.5 border-2 border-teal-border border-t-teal rounded-full animate-spin" /> : <X size={14} />}
                               </button>
                             </div>
                           )}
