@@ -8,6 +8,7 @@ import {
   Store, ShoppingBag, ArrowRight, LogIn, AlertCircle,
 } from 'lucide-react';
 import { getUser, ordersApi, requestsApi } from '@/lib/api';
+import { useSocketEvent } from '@/lib/socket';
 
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
   open:      { label: 'Waiting',         color: 'bg-yellow/15 text-dark border-yellow/25',    icon: Clock },
@@ -35,19 +36,24 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState<number | null>(null);
 
+  const loadData = () => Promise.all([
+    requestsApi.myRequests().catch(() => []),
+    ordersApi.myOrders().catch(() => []),
+  ]).then(([reqs, ords]) => {
+    setRequests(reqs);
+    setOrders(ords);
+  });
+
   useEffect(() => {
     const u = getUser();
     if (!u) { router.push('/auth/login'); return; }
     setUser(u);
-
-    Promise.all([
-      requestsApi.myRequests().catch(() => []),
-      ordersApi.myOrders().catch(() => []),
-    ]).then(([reqs, ords]) => {
-      setRequests(reqs);
-      setOrders(ords);
-    }).finally(() => setLoading(false));
+    loadData().finally(() => setLoading(false));
   }, [router]);
+
+  /* Live updates: refresh in place when sellers respond, without a manual reload */
+  useSocketEvent('offer-received', () => loadData());
+  useSocketEvent('order-accepted', () => loadData());
 
   const handleCompleteOrder = async (orderId: number) => {
     setCompleting(orderId);

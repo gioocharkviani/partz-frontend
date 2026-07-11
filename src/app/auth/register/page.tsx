@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Car, ShoppingBag, Store, Check, Eye, EyeOff, MapPin, Phone, Mail, User, Building2 } from 'lucide-react';
 import { authApi, saveAuth } from '@/lib/api';
+import { refreshSocketAuth } from '@/lib/socket';
 
 type UserType = 'customer' | 'seller' | null;
 
@@ -47,14 +48,16 @@ function RegisterForm() {
     setSubmitting(true);
     try {
       const res = await authApi.register({
-        name: userType === 'seller' ? form.businessName : form.name,
+        name: form.name,
         email: form.email,
         phone: form.phone || undefined,
         password: form.password,
         role: userType as 'customer' | 'seller',
         city: form.city || undefined,
+        businessName: userType === 'seller' ? form.businessName : undefined,
       });
       saveAuth(res.access_token, res.user);
+      refreshSocketAuth();
       setDone(true);
     } catch (err: any) {
       setApiError(err.message || 'Registration failed');

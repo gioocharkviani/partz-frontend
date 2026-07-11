@@ -7,7 +7,7 @@ interface Shop {
   location: string;
   rating: number;
   reviewCount: number;
-  productCount: number;
+  productCount?: number;
   categories: string[];
   verified: boolean;
   coverColor: string;
@@ -72,10 +72,12 @@ export default function ShopCard({ shop }: { shop: Shop }) {
           </div>
 
           <div className="flex items-center justify-between pt-3 border-t border-teal-border">
-            <div className="flex items-center gap-1.5 text-xs text-muted">
-              <Package size={11} />
-              <span>{shop.productCount} products</span>
-            </div>
+            {shop.productCount != null ? (
+              <div className="flex items-center gap-1.5 text-xs text-muted">
+                <Package size={11} />
+                <span>{shop.productCount} products</span>
+              </div>
+            ) : <span />}
             <span className="text-xs font-bold text-teal group-hover:underline">Visit →</span>
           </div>
         </div>

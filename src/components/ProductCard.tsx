@@ -1,5 +1,9 @@
+'use client';
+
 import Link from 'next/link';
-import { ShoppingCart, Store, Tag } from 'lucide-react';
+import { useState } from 'react';
+import { ShoppingCart, Store, Tag, Check } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 interface Product {
   id: number;
@@ -24,6 +28,22 @@ const PART_IMAGES: Record<string, string> = {
 };
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { addToCart } = useCart();
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
+
+  const handleAdd = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setAdding(true);
+    try {
+      await addToCart(product.id);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1500);
+    } finally {
+      setAdding(false);
+    }
+  };
+
   const conditionColors = {
     new: 'bg-teal/10 text-teal border-teal/20',
     used: 'bg-teal-wash text-muted border-teal-border',
@@ -73,8 +93,9 @@ export default function ProductCard({ product }: { product: Product }) {
           >
             View
           </Link>
-          <button className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-teal rounded-lg hover:bg-teal-dark transition-colors">
-            <ShoppingCart size={14} />
+          <button onClick={handleAdd} disabled={adding}
+            className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-teal rounded-lg hover:bg-teal-dark transition-colors disabled:opacity-60">
+            {added ? <Check size={14} /> : <ShoppingCart size={14} />}
           </button>
         </div>
       </div>

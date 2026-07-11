@@ -8,6 +8,7 @@ import {
   AlertCircle, MapPin, Phone, X,
 } from 'lucide-react';
 import { getUser, requestsApi } from '@/lib/api';
+import { useSocketEvent } from '@/lib/socket';
 
 const CITIES = ['Tbilisi', 'Rustavi', 'Kutaisi', 'Batumi', 'Gori', 'Zugdidi', 'Poti', 'Telavi', 'Akhaltsikhe', 'Ozurgeti'];
 
@@ -165,23 +166,24 @@ export default function RequestDetailPage() {
   const [acceptingOffer, setAcceptingOffer] = useState<any>(null);
   const [orderId, setOrderId] = useState<number | null>(null);
 
+  const loadRequest = () => Promise.all([
+    requestsApi.myRequests(),
+    requestsApi.getOffers(id),
+  ]).then(([reqs, offs]) => {
+    const req = reqs.find((r: any) => r.id === id);
+    setRequest(req || null);
+    setOffers(offs);
+  }).catch(() => {});
+
   useEffect(() => {
     const u = getUser();
     if (!u) { router.push('/auth/login'); return; }
     setUser(u);
-
-    Promise.all([
-      requestsApi.myRequests(),
-      requestsApi.getOffers(id),
-    ])
-      .then(([reqs, offs]) => {
-        const req = reqs.find((r: any) => r.id === id);
-        setRequest(req || null);
-        setOffers(offs);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    loadRequest().finally(() => setLoading(false));
   }, [id, router]);
+
+  /* Live updates: new offers on this request appear without a manual reload */
+  useSocketEvent('offer-received', () => loadRequest());
 
   if (!user) return null;
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Car, Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { authApi, saveAuth } from '@/lib/api';
+import { refreshSocketAuth } from '@/lib/socket';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function LoginPage() {
     try {
       const res = await authApi.login({ email, password });
       saveAuth(res.access_token, res.user);
+      refreshSocketAuth();
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Invalid credentials');

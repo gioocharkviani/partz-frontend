@@ -2,24 +2,40 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Check, MapPin, CreditCard, Phone, User, Mail } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Check, MapPin, CreditCard, Phone } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { ordersApi, getUser, resolveUploadUrl } from '@/lib/api';
+
+const CITIES = ['Tbilisi', 'Rustavi', 'Kutaisi', 'Batumi', 'Gori', 'Zugdidi', 'Poti', 'Telavi'];
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQty, clearCart, total, count } = useCart();
+  const { items, loading, removeFromCart, updateQty, clearCart, total, count } = useCart();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [orderDone, setOrderDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', city: '', notes: '', payment: 'cash' });
+  const [error, setError] = useState('');
+  const user = getUser();
+  const [form, setForm] = useState({ phone: '', address: '', city: '', notes: '', payment: 'cash' });
 
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
   const handleOrder = async () => {
     setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1400));
-    setOrderDone(true);
-    clearCart();
-    setSubmitting(false);
+    setError('');
+    try {
+      await ordersApi.placeOrder({
+        delivery_address: form.address,
+        delivery_city: form.city,
+        phone: form.phone,
+        payment_method: form.payment,
+        notes: form.notes || undefined,
+      });
+      setOrderDone(true);
+    } catch (e: any) {
+      setError(e.message || 'Failed to place order');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (orderDone) {
@@ -30,12 +46,35 @@ export default function CartPage() {
             <Check size={36} className="text-teal" />
           </div>
           <h1 className="text-2xl font-black text-dark mb-2">Order Placed!</h1>
-          <p className="text-muted mb-6">The seller will contact you shortly to confirm your order and arrange delivery.</p>
+          <p className="text-muted mb-6">Payment is held securely until you confirm delivery. Track your order from the dashboard.</p>
           <div className="flex gap-3 justify-center">
             <Link href="/parts" className="btn-teal">Browse More Parts</Link>
             <Link href="/dashboard" className="btn-secondary">My Dashboard</Link>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="w-20 h-20 rounded-2xl bg-teal-wash border-2 border-teal-border flex items-center justify-center mx-auto mb-5">
+            <ShoppingCart size={32} className="text-muted" />
+          </div>
+          <h1 className="text-2xl font-black text-dark mb-2">Sign in to view your cart</h1>
+          <p className="text-muted mb-6">Your cart is tied to your account.</p>
+          <Link href="/auth/login?redirect=/cart" className="btn-teal">Sign In</Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="w-8 h-8 border-2 border-teal-border border-t-teal rounded-full animate-spin" />
       </div>
     );
   }
@@ -55,9 +94,6 @@ export default function CartPage() {
     );
   }
 
-  const delivery = 15;
-  const grandTotal = total + delivery;
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -75,45 +111,53 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-8 items-start">
           {/* Cart items */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl border border-teal-border p-4 card-shadow flex gap-4">
-                <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="font-black text-dark text-sm leading-tight mb-0.5">{item.name}</h3>
-                      <p className="text-xs text-muted">{item.shop}</p>
-                      <span className={`inline-block mt-1 text-xs font-bold px-2 py-0.5 rounded-full ${item.condition === 'new' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                        {item.condition === 'new' ? 'New' : 'Used'}
-                      </span>
-                    </div>
-                    <button onClick={() => removeFromCart(item.id)} className="p-1.5 text-muted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
-                      <Trash2 size={15} />
-                    </button>
+            {items.map((item) => {
+              const part = item.part || {};
+              const img = part.images?.[0] ? resolveUploadUrl(part.images[0]) : '';
+              return (
+                <div key={item.id} className="bg-white rounded-2xl border border-teal-border p-4 card-shadow flex gap-4">
+                  <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-teal-wash flex items-center justify-center">
+                    {img ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={img} alt={part.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <ShoppingCart size={24} className="text-teal-border" />
+                    )}
                   </div>
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center gap-2 bg-teal-wash border border-teal-border rounded-xl overflow-hidden">
-                      <button onClick={() => updateQty(item.id, item.quantity - 1)} className="px-3 py-1.5 text-teal hover:bg-teal/10 transition-colors">
-                        <Minus size={13} />
-                      </button>
-                      <span className="w-8 text-center text-sm font-black text-dark">{item.quantity}</span>
-                      <button onClick={() => updateQty(item.id, item.quantity + 1)} className="px-3 py-1.5 text-teal hover:bg-teal/10 transition-colors">
-                        <Plus size={13} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-black text-dark text-sm leading-tight mb-0.5">{part.name}</h3>
+                        <p className="text-xs text-muted">{part.shop?.name}</p>
+                        <span className={`inline-block mt-1 text-xs font-bold px-2 py-0.5 rounded-full ${part.condition === 'new' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                          {part.condition === 'new' ? 'New' : 'Used'}
+                        </span>
+                      </div>
+                      <button onClick={() => removeFromCart(item.id)} className="p-1.5 text-muted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
+                        <Trash2 size={15} />
                       </button>
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg font-black text-dark">₾{(item.price * item.quantity).toLocaleString()}</div>
-                      {item.quantity > 1 && <div className="text-xs text-muted">₾{item.price.toLocaleString()} each</div>}
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center gap-2 bg-teal-wash border border-teal-border rounded-xl overflow-hidden">
+                        <button onClick={() => updateQty(item.id, item.quantity - 1)} className="px-3 py-1.5 text-teal hover:bg-teal/10 transition-colors">
+                          <Minus size={13} />
+                        </button>
+                        <span className="w-8 text-center text-sm font-black text-dark">{item.quantity}</span>
+                        <button onClick={() => updateQty(item.id, item.quantity + 1)} className="px-3 py-1.5 text-teal hover:bg-teal/10 transition-colors">
+                          <Plus size={13} />
+                        </button>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-black text-dark">₾{(Number(part.price || 0) * item.quantity).toLocaleString()}</div>
+                        {item.quantity > 1 && <div className="text-xs text-muted">₾{Number(part.price || 0).toLocaleString()} each</div>}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
-            <button onClick={clearCart} className="text-sm text-muted hover:text-red-500 transition-colors flex items-center gap-1.5 mt-2">
+            <button onClick={() => clearCart()} className="text-sm text-muted hover:text-red-500 transition-colors flex items-center gap-1.5 mt-2">
               <Trash2 size={13} /> Clear all items
             </button>
           </div>
@@ -127,38 +171,32 @@ export default function CartPage() {
                   <span className="text-muted">Subtotal ({count} items)</span>
                   <span className="font-bold text-dark">₾{total.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted">Delivery</span>
-                  <span className="font-bold text-dark">₾{delivery}</span>
-                </div>
                 <div className="border-t border-teal-border pt-3 flex justify-between">
                   <span className="font-black text-dark">Total</span>
-                  <span className="font-black text-dark text-xl">₾{grandTotal.toLocaleString()}</span>
+                  <span className="font-black text-dark text-xl">₾{total.toLocaleString()}</span>
                 </div>
               </div>
 
               {!checkoutOpen ? (
-                <button onClick={() => setCheckoutOpen(true)} className="btn-teal w-full justify-center py-3.5">
+                <button onClick={() => setCheckoutOpen(true)} className="btn-primary w-full justify-center py-3.5">
                   <CreditCard size={16} /> Proceed to Checkout
                 </button>
               ) : (
                 <div className="space-y-3">
                   <h3 className="font-black text-dark text-sm uppercase tracking-wider">Delivery Details</h3>
                   <div className="input-wrap">
-                    <span className="input-icon"><User size={13} /></span>
-                    <input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Full name *" />
-                  </div>
-                  <div className="input-wrap">
                     <span className="input-icon"><Phone size={13} /></span>
                     <input value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="Phone number *" />
                   </div>
                   <div className="input-wrap">
-                    <span className="input-icon"><Mail size={13} /></span>
-                    <input value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="Email" />
-                  </div>
-                  <div className="input-wrap">
                     <span className="input-icon"><MapPin size={13} /></span>
                     <input value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="Delivery address *" />
+                  </div>
+                  <div className="input-wrap">
+                    <select value={form.city} onChange={(e) => set('city', e.target.value)} className="bg-white appearance-none">
+                      <option value="">Select city *</option>
+                      {CITIES.map((c) => <option key={c}>{c}</option>)}
+                    </select>
                   </div>
                   <div>
                     <label className="field-label">Payment Method</label>
@@ -173,11 +211,12 @@ export default function CartPage() {
                   </div>
                   <textarea value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Notes (optional)" rows={2}
                     className="input-base text-sm resize-none" />
-                  <button onClick={handleOrder} disabled={!form.name || !form.phone || !form.address || submitting}
-                    className="btn-teal w-full justify-center py-3.5">
+                  {error && <p className="text-sm text-red-500 font-semibold">{error}</p>}
+                  <button onClick={handleOrder} disabled={!form.phone || !form.address || !form.city || submitting}
+                    className="btn-primary w-full justify-center py-3.5 disabled:opacity-50">
                     {submitting
-                      ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      : `Place Order — ₾${grandTotal.toLocaleString()}`}
+                      ? <span className="w-5 h-5 border-2 border-dark/20 border-t-dark rounded-full animate-spin" />
+                      : `Place Order — ₾${total.toLocaleString()}`}
                   </button>
                   <button onClick={() => setCheckoutOpen(false)} className="w-full text-center text-xs text-muted hover:text-dark transition-colors">
                     Cancel
@@ -189,11 +228,8 @@ export default function CartPage() {
                 <div className="flex items-center gap-2 text-xs text-muted mb-2">
                   <Check size={12} className="text-teal" /> Verified sellers only
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted mb-2">
-                  <Check size={12} className="text-teal" /> Buyer protection guarantee
-                </div>
                 <div className="flex items-center gap-2 text-xs text-muted">
-                  <Check size={12} className="text-teal" /> Free returns within 7 days
+                  <Check size={12} className="text-teal" /> Payment held until you confirm delivery
                 </div>
               </div>
             </div>

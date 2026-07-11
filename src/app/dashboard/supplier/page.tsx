@@ -1,15 +1,17 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   MessageCircle, CheckCircle, DollarSign, Send, Package,
   ChevronLeft, AlertCircle, Plus, X, Car, Settings, ChevronDown, Tag,
+  Layers, Camera, Trash2, Edit2, Eye, EyeOff, AlertTriangle,
 } from 'lucide-react';
-import { getUser, requestsApi, ordersApi, shopsApi } from '@/lib/api';
+import { getUser, requestsApi, ordersApi, shopsApi, partsApi, uploadsApi, resolveUploadUrl } from '@/lib/api';
+import { useSocketEvent } from '@/lib/socket';
 
-type Tab = 'requests' | 'quotes' | 'orders' | 'setup';
+type Tab = 'requests' | 'quotes' | 'orders' | 'setup' | 'inventory';
 
 const reqStatusConfig: Record<string, { label: string; color: string; dot: string }> = {
   open:      { label: 'New',       color: 'bg-teal/10 text-teal border-teal/20',         dot: 'bg-teal' },
@@ -116,8 +118,7 @@ function QuoteModal({ request, onClose, onSent }: { request: any; onClose: () =>
 }
 
 /* ── Setup Tab: shop creation + specializations ── */
-function SetupTab({ user }: { user: any }) {
-  const [shop, setShop] = useState<any>(null);
+function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopChange: () => void }) {
   const [specs, setSpecs] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [models, setModels] = useState<any[]>([]);
@@ -137,27 +138,33 @@ function SetupTab({ user }: { user: any }) {
   const [shopForm, setShopForm] = useState({ name: '', description: '', city: '', phone: '', address: '' });
   const [savingShop, setSavingShop] = useState(false);
   const [shopMsg, setShopMsg] = useState('');
+  const [togglingVisibility, setTogglingVisibility] = useState(false);
+  const [deletingShop, setDeletingShop] = useState(false);
+  const [deleteErr, setDeleteErr] = useState('');
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const CITIES = ['Tbilisi', 'Rustavi', 'Kutaisi', 'Batumi', 'Gori', 'Zugdidi', 'Poti', 'Telavi'];
 
   const loadAll = useCallback(async () => {
-    const [sh, sp, br, cats] = await Promise.all([
-      shopsApi.myShop().catch(() => null),
+    const [sp, br, cats] = await Promise.all([
       shopsApi.getSpecializations().catch(() => []),
       shopsApi.brands().catch(() => []),
       shopsApi.categories().catch(() => []),
     ]);
-    setShop(sh);
     setSpecs(sp);
     setBrands(br);
     setAllCategories(cats);
-    if (sh) {
-      setShopForm({ name: sh.name || '', description: sh.description || '', city: sh.city || '', phone: sh.phone || '', address: sh.address || '' });
-      setSelectedCats((sh.categories || []).map((c: any) => c.id));
-    }
   }, []);
 
   useEffect(() => { loadAll(); }, [loadAll]);
+
+  useEffect(() => {
+    if (shop) {
+      setShopForm({ name: shop.name || '', description: shop.description || '', city: shop.city || '', phone: shop.phone || '', address: shop.address || '' });
+      setSelectedCats((shop.categories || []).map((c: any) => c.id));
+    }
+  }, [shop]);
 
   useEffect(() => {
     if (!selBrand) { setModels([]); setSelModel(''); return; }
@@ -175,12 +182,47 @@ function SetupTab({ user }: { user: any }) {
         await shopsApi.create(shopForm);
       }
       setShopMsg('Saved!');
-      loadAll();
+      onShopChange();
     } catch (err: any) {
       setShopMsg(err.message || 'Failed');
     } finally {
       setSavingShop(false);
       setTimeout(() => setShopMsg(''), 3000);
+    }
+  };
+
+  const toggleVisibility = async () => {
+    if (!shop) return;
+    setTogglingVisibility(true);
+    try {
+      await shopsApi.update({ is_active: !shop.is_active });
+      onShopChange();
+    } finally {
+      setTogglingVisibility(false);
+    }
+  };
+
+  const handleDeleteShop = async () => {
+    setDeletingShop(true); setDeleteErr('');
+    try {
+      await shopsApi.delete();
+      setConfirmingDelete(false);
+      onShopChange();
+    } catch (err: any) {
+      setDeleteErr(err.message || 'Failed to delete shop');
+    } finally {
+      setDeletingShop(false);
+    }
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    setUploadingCover(true);
+    try {
+      const { url } = await uploadsApi.upload(file);
+      await shopsApi.update({ cover_image: url });
+      onShopChange();
+    } finally {
+      setUploadingCover(false);
     }
   };
 
@@ -349,6 +391,23 @@ function SetupTab({ user }: { user: any }) {
             <p className="text-sm text-muted mt-0.5">Your public storefront visible to all buyers</p>
           </div>
         </div>
+        {shop && (
+          <div className="mb-5 flex items-center gap-4">
+            <div className="w-20 h-20 rounded-xl bg-teal-wash border border-teal-border overflow-hidden flex items-center justify-center shrink-0">
+              {shop.cover_image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={resolveUploadUrl(shop.cover_image)} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <Camera size={22} className="text-teal-border" />
+              )}
+            </div>
+            <label className="btn-secondary px-4 py-2 text-sm cursor-pointer">
+              {uploadingCover ? <span className="w-4 h-4 border-2 border-teal-border border-t-teal rounded-full animate-spin" /> : 'Upload Cover Photo'}
+              <input type="file" accept="image/*" hidden disabled={uploadingCover}
+                onChange={(e) => e.target.files?.[0] && handleCoverUpload(e.target.files[0])} />
+            </label>
+          </div>
+        )}
         <form onSubmit={saveShop} className="space-y-4">
           <div>
             <label className="field-label">Shop Name *</label>
@@ -408,6 +467,337 @@ function SetupTab({ user }: { user: any }) {
           </div>
         </form>
       </div>
+
+      {/* Visibility & Delete */}
+      {shop && (
+        <div className="bg-white rounded-2xl p-6 card-shadow border border-teal-border">
+          <div className="flex items-start gap-3 mb-5">
+            <div className="w-10 h-10 rounded-xl bg-teal/10 flex items-center justify-center shrink-0">
+              {shop.is_active ? <Eye size={20} className="text-teal" /> : <EyeOff size={20} className="text-teal" />}
+            </div>
+            <div>
+              <h3 className="font-black text-dark">Shop Visibility</h3>
+              <p className="text-sm text-muted mt-0.5">
+                {shop.is_active ? 'Your shop is visible to buyers on partz.ge' : 'Your shop is hidden — buyers cannot find or order from it'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div onClick={toggleVisibility}
+                className={`w-11 h-6 rounded-full transition-colors ${shop.is_active ? 'bg-teal' : 'bg-teal-border'} relative ${togglingVisibility ? 'opacity-50' : ''}`}>
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${shop.is_active ? 'translate-x-6' : 'translate-x-1'}`} />
+              </div>
+              <span className="text-sm font-bold text-dark">{shop.is_active ? 'Enabled' : 'Disabled'}</span>
+            </label>
+
+            {!confirmingDelete ? (
+              <button onClick={() => setConfirmingDelete(true)}
+                className="flex items-center gap-1.5 text-sm font-bold text-red-500 hover:text-red-600 transition-colors">
+                <Trash2 size={14} /> Delete Shop
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button onClick={handleDeleteShop} disabled={deletingShop}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-bold hover:bg-red-600 transition-colors disabled:opacity-50">
+                  {deletingShop ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Confirm Delete'}
+                </button>
+                <button onClick={() => { setConfirmingDelete(false); setDeleteErr(''); }} className="text-xs font-semibold text-muted hover:text-dark">
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+          {deleteErr && (
+            <div className="mt-3 flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">
+              <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+              <span>{deleteErr}</span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Inventory Tab: seller's parts (the "warehouse") ── */
+function PartFormModal({ existing, categories, brands, onClose, onSaved }: {
+  existing: any; categories: any[]; brands: any[]; onClose: () => void; onSaved: () => void;
+}) {
+  const [name, setName] = useState(existing?.name || '');
+  const [description, setDescription] = useState(existing?.description || '');
+  const [price, setPrice] = useState(existing?.price ? String(existing.price) : '');
+  const [condition, setCondition] = useState(existing?.condition || 'used');
+  const [categoryId, setCategoryId] = useState(existing?.category_id ? String(existing.category_id) : '');
+  const [brandId, setBrandId] = useState(existing?.brand_id ? String(existing.brand_id) : '');
+  const [modelId, setModelId] = useState(existing?.model_id ? String(existing.model_id) : '');
+  const [models, setModels] = useState<any[]>([]);
+  const [year, setYear] = useState(existing?.year || '');
+  const [partNumber, setPartNumber] = useState(existing?.part_number || '');
+  const [stock, setStock] = useState(existing?.stock ? String(existing.stock) : '1');
+  const [images, setImages] = useState<string[]>(existing?.images || []);
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!brandId) { setModels([]); return; }
+    shopsApi.modelsByBrand(Number(brandId)).then(setModels).catch(() => []);
+  }, [brandId]);
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files) return;
+    setUploading(true);
+    try {
+      for (const file of Array.from(files).slice(0, 6 - images.length)) {
+        const { url } = await uploadsApi.upload(file);
+        setImages((prev) => [...prev, url]);
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true); setErr('');
+    const dto = {
+      name, description: description || undefined, price: Number(price), condition,
+      category_id: categoryId ? Number(categoryId) : undefined,
+      brand_id: brandId ? Number(brandId) : undefined,
+      model_id: modelId ? Number(modelId) : undefined,
+      year: year || undefined, part_number: partNumber || undefined,
+      stock: Number(stock) || 1, images,
+    };
+    try {
+      if (existing) await partsApi.update(existing.id, dto);
+      else await partsApi.create(dto);
+      onSaved();
+    } catch (e: any) {
+      setErr(e.message || 'Failed to save part');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const topCategories = categories.filter((c) => !c.parent_id);
+
+  return (
+    <div className="fixed inset-0 bg-dark/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl w-full max-w-2xl p-7 card-shadow border border-teal-border my-8">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-black text-dark text-lg">{existing ? 'Edit Part' : 'Add Part'}</h3>
+          <button onClick={onClose} className="text-muted hover:text-dark transition-colors p-1 text-xl leading-none">×</button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="field-label">Part Name *</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} required className="input-base" placeholder="e.g. BMW E46 Front Bumper OEM" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="field-label">Price (₾) *</label>
+              <input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required className="input-base" />
+            </div>
+            <div>
+              <label className="field-label">Stock Quantity</label>
+              <input type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} className="input-base" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="field-label">Condition *</label>
+              <div className="input-wrap">
+                <select value={condition} onChange={(e) => setCondition(e.target.value)} className="bg-white appearance-none">
+                  <option value="new">New</option>
+                  <option value="used">Used</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="field-label">Category</label>
+              <div className="input-wrap">
+                <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="bg-white appearance-none">
+                  <option value="">Select category</option>
+                  {topCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="field-label">Brand</label>
+              <div className="input-wrap">
+                <select value={brandId} onChange={(e) => { setBrandId(e.target.value); setModelId(''); }} className="bg-white appearance-none">
+                  <option value="">Any</option>
+                  {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="field-label">Model</label>
+              <div className="input-wrap">
+                <select value={modelId} onChange={(e) => setModelId(e.target.value)} disabled={!brandId} className="bg-white appearance-none disabled:opacity-50">
+                  <option value="">Any</option>
+                  {models.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="field-label">Year</label>
+              <input value={year} onChange={(e) => setYear(e.target.value)} placeholder="2003-2006" className="input-base" />
+            </div>
+          </div>
+          <div>
+            <label className="field-label">Part Number</label>
+            <input value={partNumber} onChange={(e) => setPartNumber(e.target.value)} className="input-base" placeholder="Optional" />
+          </div>
+          <div>
+            <label className="field-label">Description</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="input-base resize-none" />
+          </div>
+          <div>
+            <label className="field-label">Photos</label>
+            <div onClick={() => fileRef.current?.click()}
+              className="border-2 border-dashed border-teal-border rounded-xl p-5 text-center cursor-pointer hover:border-teal/50 hover:bg-teal-wash/50 transition-all">
+              <Camera size={22} className="mx-auto mb-1.5 text-dark/30" />
+              <p className="text-xs font-medium text-muted">{uploading ? 'Uploading…' : 'Click to upload photos (max 6)'}</p>
+              <input ref={fileRef} type="file" accept="image/*" multiple hidden disabled={uploading}
+                onChange={(e) => handleFiles(e.target.files)} />
+            </div>
+            {images.length > 0 && (
+              <div className="flex gap-2 flex-wrap mt-3">
+                {images.map((url, i) => (
+                  <div key={i} className="relative group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={resolveUploadUrl(url)} alt="" className="w-16 h-16 object-cover rounded-lg border border-teal-border" />
+                    <button type="button" onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-teal text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <X size={10} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          {err && <p className="text-sm text-red-500 font-semibold">{err}</p>}
+          <div className="flex gap-3">
+            <button type="submit" disabled={saving || !name || !price} className="btn-primary flex-1 py-3 justify-center disabled:opacity-50">
+              {saving ? <span className="w-4 h-4 border-2 border-dark/20 border-t-dark rounded-full animate-spin" /> : existing ? 'Save Changes' : 'Add Part'}
+            </button>
+            <button type="button" onClick={onClose} className="px-6 py-3 border-2 border-teal-border rounded-xl text-sm font-bold text-muted hover:border-teal hover:text-dark transition-colors">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function InventoryTab({ shop }: { shop: any }) {
+  const [parts, setParts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [brands, setBrands] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingPart, setEditingPart] = useState<any>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const load = useCallback(async () => {
+    if (!shop) { setParts([]); setLoading(false); return; }
+    setLoading(true);
+    const [prts, cats, brs] = await Promise.all([
+      partsApi.byShop(shop.id).catch(() => []),
+      shopsApi.categories().catch(() => []),
+      shopsApi.brands().catch(() => []),
+    ]);
+    setParts(prts); setCategories(cats); setBrands(brs);
+    setLoading(false);
+  }, [shop]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleDelete = async (id: number) => {
+    setDeletingId(id);
+    try {
+      await partsApi.delete(id);
+      setParts((prev) => prev.filter((p) => p.id !== id));
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  if (!shop) {
+    return (
+      <div className="text-center py-16 text-muted">
+        <Layers size={40} className="mx-auto mb-3 opacity-30" />
+        <p className="font-bold text-dark mb-1">Create your shop first</p>
+        <p className="text-sm">Set up your shop in the Setup tab, then come back to add inventory.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {formOpen && (
+        <PartFormModal existing={editingPart} categories={categories} brands={brands}
+          onClose={() => { setFormOpen(false); setEditingPart(null); }}
+          onSaved={() => { setFormOpen(false); setEditingPart(null); load(); }} />
+      )}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-black text-dark">My Inventory</h2>
+        <button onClick={() => { setEditingPart(null); setFormOpen(true); }} className="btn-primary py-2.5">
+          <Plus size={16} /> Add Part
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <span className="w-7 h-7 border-2 border-teal-border border-t-teal rounded-full animate-spin" />
+        </div>
+      ) : parts.length === 0 ? (
+        <div className="text-center py-16 text-muted">
+          <Layers size={40} className="mx-auto mb-3 opacity-30" />
+          <p className="font-bold text-dark mb-1">No parts in your inventory yet</p>
+          <p className="text-sm mb-4">Add parts so customers can find and buy them directly.</p>
+          <button onClick={() => setFormOpen(true)} className="btn-teal">Add Your First Part</button>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {parts.map((p) => {
+            const img = p.images?.[0] ? resolveUploadUrl(p.images[0]) : '';
+            return (
+              <div key={p.id} className="bg-white rounded-2xl border border-teal-border overflow-hidden card-shadow">
+                <div className="h-32 bg-teal-wash flex items-center justify-center overflow-hidden">
+                  {img ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={img} alt={p.name} className="w-full h-full object-cover" />
+                  ) : <span className="text-3xl">🔧</span>}
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-dark text-sm leading-tight mb-1 line-clamp-2">{p.name}</h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-lg font-black text-teal">₾{Number(p.price).toFixed(0)}</span>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-wash text-muted">Stock: {p.stock}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setEditingPart(p); setFormOpen(true); }}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-teal-border text-xs font-bold text-muted hover:border-teal hover:text-teal transition-colors">
+                      <Edit2 size={12} /> Edit
+                    </button>
+                    <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-red-100 text-xs font-bold text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50">
+                      {deletingId === p.id ? <span className="w-3 h-3 border-2 border-red-200 border-t-red-500 rounded-full animate-spin" /> : <><Trash2 size={12} /> Delete</>}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -418,9 +808,15 @@ export default function SellerDashboard() {
   const [tab, setTab] = useState<Tab>('setup');
   const [requests, setRequests] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [shop, setShop] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [quotingRequest, setQuotingRequest] = useState<any>(null);
   const [accepting, setAccepting] = useState<number | null>(null);
+
+  const loadShop = async () => {
+    const sh = await shopsApi.myShop().catch(() => null);
+    setShop(sh);
+  };
 
   const loadData = async () => {
     const [reqs, ords] = await Promise.all([
@@ -436,8 +832,12 @@ export default function SellerDashboard() {
     if (!u) { router.push('/auth/login'); return; }
     if (u.role !== 'seller') { router.push('/dashboard'); return; }
     setUser(u);
-    loadData().finally(() => setLoading(false));
+    Promise.all([loadShop(), loadData()]).finally(() => setLoading(false));
   }, [router]);
+
+  /* Live updates: refresh requests/orders in place when relevant events arrive, not just a toast */
+  useSocketEvent('new-request', () => loadData());
+  useSocketEvent('offer-accepted', () => loadData());
 
   const handleAcceptOrder = async (orderId: number) => {
     setAccepting(orderId);
@@ -514,8 +914,8 @@ export default function SellerDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-teal-wash border border-teal-border rounded-xl p-1 mb-6 w-fit">
-          {(['setup', 'requests', 'quotes', 'orders'] as Tab[]).map((t) => (
+        <div className="flex gap-1 bg-teal-wash border border-teal-border rounded-xl p-1 mb-6 w-fit flex-wrap">
+          {(['setup', 'inventory', 'requests', 'quotes', 'orders'] as Tab[]).map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`px-4 py-2.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 ${tab === t ? 'bg-teal text-white' : 'text-muted hover:text-dark'}`}>
               {t === 'requests' && newCount > 0 && <span className="w-2 h-2 rounded-full bg-yellow" />}
@@ -526,7 +926,10 @@ export default function SellerDashboard() {
         </div>
 
         {/* Setup Tab */}
-        {tab === 'setup' && <SetupTab user={user} />}
+        {tab === 'setup' && <SetupTab user={user} shop={shop} onShopChange={loadShop} />}
+
+        {/* Inventory Tab */}
+        {tab === 'inventory' && <InventoryTab shop={shop} />}
 
         {/* Data tabs */}
         {tab !== 'setup' && loading ? (

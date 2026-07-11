@@ -1,6 +1,7 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const ORIGIN = BASE.replace(/\/api\/?$/, '');
 
-function getToken() {
+export function getToken() {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('partz_token');
 }
@@ -20,6 +21,13 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data;
 }
 
+/** Prefixes a relative `/uploads/...` path returned by the API with the gateway origin (uploads are served outside the `/api` prefix). */
+export function resolveUploadUrl(url?: string | null) {
+  if (!url) return '';
+  if (/^https?:\/\//.test(url)) return url;
+  return `${ORIGIN}${url}`;
+}
+
 const get = <T>(path: string) => request<T>(path);
 const post = <T>(path: string, body: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(body) });
 const patch = <T>(path: string, body: unknown) => request<T>(path, { method: 'PATCH', body: JSON.stringify(body) });
@@ -27,7 +35,7 @@ const del = <T>(path: string) => request<T>(path, { method: 'DELETE' });
 
 /* ─── Auth ─── */
 export const authApi = {
-  register: (dto: { name: string; email: string; phone?: string; password: string; role: 'customer' | 'seller'; city?: string }) =>
+  register: (dto: { name: string; email: string; phone?: string; password: string; role: 'customer' | 'seller'; city?: string; businessName?: string }) =>
     post<{ access_token: string; user: any }>('/auth/register', dto),
   login: (dto: { email: string; password: string }) =>
     post<{ access_token: string; user: any }>('/auth/login', dto),
@@ -49,10 +57,30 @@ export const shopsApi = {
   myShop: () => get<any>('/shops/my/shop'),
   create: (dto: any) => post<any>('/shops/my/shop', dto),
   update: (dto: any) => patch<any>('/shops/my/shop', dto),
+  delete: () => del<{ success: boolean }>('/shops/my/shop'),
   addSpecialization: (dto: { brand_id: number; model_id?: number }) => post<any>('/shops/my/specializations', dto),
   removeSpecialization: (id: number) => del(`/shops/my/specializations/${id}`),
   getSpecializations: () => get<any[]>('/shops/my/specializations'),
   setCategories: (category_ids: number[]) => patch<any>('/shops/my/categories', { category_ids }),
+  reviews: (id: number) => get<any[]>(`/shops/${id}/reviews`),
+  recentActivity: () => get<{ requests: any[]; orders: any[] }>('/shops/activity/recent'),
+};
+
+/* ─── Uploads ─── */
+export const uploadsApi = {
+  upload: async (file: File): Promise<{ url: string }> => {
+    const form = new FormData();
+    form.append('file', file);
+    const token = getToken();
+    const res = await fetch(`${BASE}/uploads`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: form,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Upload failed');
+    return data;
+  },
 };
 
 /* ─── Parts ─── */
