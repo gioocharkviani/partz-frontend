@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
   title: "partz.ge — Car Parts Marketplace",
@@ -13,11 +14,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ka" className="h-full">
       <body className="min-h-full flex flex-col antialiased" suppressHydrationWarning>
-        <CartProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </CartProvider>
+        <LanguageProvider>
+          <CartProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </CartProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

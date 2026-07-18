@@ -5,15 +5,17 @@ import { Search, SlidersHorizontal, MapPin, ChevronDown, X } from 'lucide-react'
 import ShopCard from '@/components/ShopCard';
 import { shopsApi } from '@/lib/api';
 import { toShopCard } from '@/lib/mappers';
+import { useLanguage } from '@/context/LanguageContext';
 
 const locations = ['All Cities', 'Tbilisi', 'Rustavi', 'Kutaisi', 'Batumi', 'Gori', 'Zugdidi', 'Poti', 'Telavi'];
-const sortOptions = [
-  { value: 'ranking', label: 'Top Ranked' },
-  { value: 'reviews', label: 'Most Reviews' },
-  { value: 'newest', label: 'Newest' },
-];
 
 export default function ShopsPage() {
+  const { t } = useLanguage();
+  const sortOptions = [
+    { value: 'ranking', label: t('shopsPage.sortTopRanked') },
+    { value: 'reviews', label: t('shopsPage.sortMostReviews') },
+    { value: 'newest', label: t('shopsPage.sortNewest') },
+  ];
   const [shops, setShops] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -54,19 +56,19 @@ export default function ShopsPage() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="gradient-teal py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-black text-white mb-2">Browse Shops</h1>
-          <p className="text-white/70">{shops.length} shops and sellers across Georgia</p>
+        <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-black text-white mb-2">{t('footer.browseShops')}</h1>
+          <p className="text-white/70">{shops.length} {t('shopsPage.subtitle')}</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search + filter bar */}
         <div className="bg-white rounded-2xl p-4 card-shadow mb-6 border border-teal-border">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search shops..." className="input-base pl-9" />
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('shopsPage.searchPlaceholder')} className="input-base pl-9" />
               {search && (
                 <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-dark">
                   <X size={14} />
@@ -76,7 +78,7 @@ export default function ShopsPage() {
             <div className="relative">
               <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
               <select value={city} onChange={(e) => setCity(e.target.value)} className="input-base pl-8 pr-8 bg-white appearance-none w-full sm:w-40">
-                {locations.map((l) => <option key={l}>{l}</option>)}
+                {locations.map((l) => <option key={l} value={l}>{l === 'All Cities' ? t('shopsPage.allCities') : l}</option>)}
               </select>
             </div>
             <div className="relative">
@@ -88,7 +90,7 @@ export default function ShopsPage() {
             <button onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2.5 border-2 rounded-lg text-sm font-semibold transition-colors ${showFilters ? 'border-teal text-teal bg-teal/5' : 'border-teal-border text-muted hover:border-teal hover:text-teal'}`}>
               <SlidersHorizontal size={15} />
-              Filters
+              {t('partsPage.filters')}
             </button>
           </div>
 
@@ -99,7 +101,7 @@ export default function ShopsPage() {
                   className={`w-10 h-6 rounded-full transition-colors ${verifiedOnly ? 'bg-teal' : 'bg-[#e2e8f0]'} relative cursor-pointer`}>
                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${verifiedOnly ? 'translate-x-5' : 'translate-x-1'}`} />
                 </div>
-                <span className="text-sm font-medium text-dark">Trusted only (has completed orders)</span>
+                <span className="text-sm font-medium text-dark">{t('shopsPage.trustedOnly')}</span>
               </label>
             </div>
           )}
@@ -111,7 +113,7 @@ export default function ShopsPage() {
             {categoryFilters.map((cat) => (
               <button key={cat} onClick={() => setActiveCat(cat)}
                 className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${activeCat === cat ? 'bg-teal text-white' : 'bg-white text-muted hover:text-dark border border-teal-border hover:border-teal'}`}>
-                {cat}
+                {cat === 'All' ? t('common.all') : cat}
               </button>
             ))}
           </div>
@@ -124,8 +126,8 @@ export default function ShopsPage() {
         ) : (
           <>
             <p className="text-sm text-muted mb-5">
-              Showing <strong className="text-dark">{filtered.length}</strong> shops
-              {search && <> matching &ldquo;<strong className="text-dark">{search}</strong>&rdquo;</>}
+              {t('shopsPage.showingPrefix')} <strong className="text-dark">{filtered.length}</strong> {t('shopsPage.showingSuffix')}
+              {search && <> {t('shopsPage.matchingLabel')} &ldquo;<strong className="text-dark">{search}</strong>&rdquo;</>}
             </p>
 
             {filtered.length > 0 ? (
@@ -135,10 +137,10 @@ export default function ShopsPage() {
             ) : (
               <div className="text-center py-20">
                 <div className="text-5xl mb-4">🔍</div>
-                <h3 className="text-xl font-bold text-dark mb-2">No shops found</h3>
-                <p className="text-muted text-sm">Try adjusting your search or filters</p>
+                <h3 className="text-xl font-bold text-dark mb-2">{t('shopsPage.noShopsFound')}</h3>
+                <p className="text-muted text-sm">{t('shopsPage.tryAdjustingSearch')}</p>
                 <button onClick={() => { setSearch(''); setCity('All Cities'); setActiveCat('All'); setVerifiedOnly(false); }} className="mt-4 btn-teal">
-                  Clear Filters
+                  {t('partsPage.resetFilters')}
                 </button>
               </div>
             )}

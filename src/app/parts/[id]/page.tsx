@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { ArrowLeft, ShoppingCart, Star, MapPin, CheckCircle, Phone, MessageSquare, Check, Package, Shield, Truck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { partsApi, resolveUploadUrl } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function PartDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { addToCart } = useCart();
+  const { t } = useLanguage();
   const [qty, setQty] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
@@ -44,8 +46,8 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-black text-dark mb-3">Part not found</h1>
-          <Link href="/parts" className="btn-teal">Browse Parts</Link>
+          <h1 className="text-2xl font-black text-dark mb-3">{t('partDetail.notFound')}</h1>
+          <Link href="/parts" className="btn-teal">{t('cart.browseParts')}</Link>
         </div>
       </div>
     );
@@ -61,12 +63,12 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-muted mb-6">
-          <Link href="/" className="hover:text-teal transition-colors">Home</Link>
+          <Link href="/" className="hover:text-teal transition-colors">{t('partDetail.home')}</Link>
           <span>/</span>
-          <Link href="/parts" className="hover:text-teal transition-colors flex items-center gap-1"><ArrowLeft size={11} /> Parts</Link>
+          <Link href="/parts" className="hover:text-teal transition-colors flex items-center gap-1"><ArrowLeft size={11} /> {t('nav.parts')}</Link>
           <span>/</span>
           <span className="text-dark font-semibold">{part.name}</span>
         </div>
@@ -101,7 +103,7 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
               <div>
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <span className={`text-xs font-black px-2.5 py-1 rounded-full ${part.condition === 'new' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>
-                    {part.condition === 'new' ? 'NEW' : 'USED'}
+                    {part.condition === 'new' ? t('product.new') : t('product.used')}
                   </span>
                   {part.category?.name && <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-wash border border-teal-border text-teal">{part.category.name}</span>}
                   {part.brand?.name && <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-wash border border-teal-border text-teal">{part.brand.name}</span>}
@@ -115,7 +117,7 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="flex items-center gap-1.5">
                   {[1, 2, 3, 4, 5].map((s) => <Star key={s} size={13} className={s <= Math.round(Number(part.shop.rating_avg)) ? 'fill-yellow text-yellow' : 'text-teal-border fill-teal-border'} />)}
                   <span className="font-bold text-dark">{Number(part.shop.rating_avg).toFixed(1)}</span>
-                  <span className="text-muted">({part.shop.reviews_count || 0} shop reviews)</span>
+                  <span className="text-muted">({part.shop.reviews_count || 0} {t('partDetail.shopReviews')})</span>
                 </div>
               )}
               {part.shop?.city && (
@@ -132,13 +134,13 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
               <div className="grid grid-cols-2 gap-3 mb-5">
                 {part.part_number && (
                   <div className="bg-teal-wash border border-teal-border rounded-xl px-3 py-2.5">
-                    <div className="text-xs text-muted font-semibold">Part Number</div>
+                    <div className="text-xs text-muted font-semibold">{t('partDetail.partNumber')}</div>
                     <div className="text-sm font-black text-dark font-mono">{part.part_number}</div>
                   </div>
                 )}
                 {part.year && (
                   <div className="bg-teal-wash border border-teal-border rounded-xl px-3 py-2.5">
-                    <div className="text-xs text-muted font-semibold">Year Range</div>
+                    <div className="text-xs text-muted font-semibold">{t('partDetail.yearRange')}</div>
                     <div className="text-sm font-black text-dark">{part.year}</div>
                   </div>
                 )}
@@ -156,16 +158,16 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
               </div>
               <button onClick={handleAdd}
                 className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-sm transition-all ${justAdded ? 'bg-emerald-500 text-white' : 'bg-teal text-white hover:bg-teal-dark'}`}>
-                {justAdded ? <><Check size={16} /> Added to Cart!</> : <><ShoppingCart size={16} /> Add to Cart</>}
+                {justAdded ? <><Check size={16} /> {t('partDetail.addedToCart')}</> : <><ShoppingCart size={16} /> {t('product.addToCart')}</>}
               </button>
               <Link href="/cart" className="btn-secondary px-4 py-3">
-                View Cart
+                {t('partDetail.viewCart')}
               </Link>
             </div>
 
             <div className="flex items-center gap-2">
               <button className="flex items-center gap-2 text-xs text-muted hover:text-dark transition-colors px-3 py-2 rounded-lg hover:bg-teal-wash">
-                <MessageSquare size={13} /> Ask a Question
+                <MessageSquare size={13} /> {t('partDetail.askQuestion')}
               </button>
             </div>
 
@@ -185,21 +187,21 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
                       {part.shop.rating_avg != null && (
                         <div className="flex items-center gap-1 text-xs text-muted">
                           <Star size={10} className="fill-yellow text-yellow" />
-                          {Number(part.shop.rating_avg).toFixed(1)} · {part.shop.reviews_count || 0} reviews
+                          {Number(part.shop.rating_avg).toFixed(1)} · {part.shop.reviews_count || 0} {t('shop.reviews')}
                         </div>
                       )}
                     </div>
                   </div>
-                  <Link href={`/shops/${part.shop.id}`} className="text-xs font-bold text-teal hover:underline">Visit Shop →</Link>
+                  <Link href={`/shops/${part.shop.id}`} className="text-xs font-bold text-teal hover:underline">{t('partDetail.visitShop')} →</Link>
                 </div>
                 <div className="flex gap-2">
                   {part.shop.phone && (
                     <a href={`tel:${part.shop.phone}`} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-teal-border text-sm font-bold text-teal hover:bg-teal hover:text-white hover:border-teal transition-all">
-                      <Phone size={14} /> Call Seller
+                      <Phone size={14} /> {t('partDetail.callSeller')}
                     </a>
                   )}
                   <Link href={`/shops/${part.shop.id}`} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-teal-wash border-2 border-teal-border text-sm font-bold text-dark hover:bg-teal-border transition-colors">
-                    <Package size={14} /> More from Shop
+                    <Package size={14} /> {t('partDetail.moreFromShop')}
                   </Link>
                 </div>
               </div>
@@ -208,9 +210,9 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
             {/* Trust badges */}
             <div className="grid grid-cols-3 gap-2 mt-4">
               {[
-                { icon: Shield, text: 'Buyer Protection' },
-                { icon: Truck, text: 'Fast Delivery' },
-                { icon: Check, text: 'Verified Part' },
+                { icon: Shield, text: t('partDetail.buyerProtection') },
+                { icon: Truck, text: t('partDetail.fastDelivery') },
+                { icon: Check, text: t('partDetail.verifiedPart') },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex flex-col items-center gap-1 p-2.5 bg-teal-wash border border-teal-border rounded-xl text-center">
                   <Icon size={16} className="text-teal" />
@@ -224,7 +226,7 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
         {/* Related parts */}
         {related.length > 0 && (
           <div>
-            <h2 className="text-xl font-black text-dark mb-5">Related Parts</h2>
+            <h2 className="text-xl font-black text-dark mb-5">{t('partDetail.relatedParts')}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {related.map((p) => {
                 const img = p.images?.[0] ? resolveUploadUrl(p.images[0]) : '';

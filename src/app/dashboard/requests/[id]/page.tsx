@@ -9,14 +9,10 @@ import {
 } from 'lucide-react';
 import { getUser, requestsApi } from '@/lib/api';
 import { useSocketEvent } from '@/lib/socket';
+import { useLanguage } from '@/context/LanguageContext';
 
 const CITIES = ['Tbilisi', 'Rustavi', 'Kutaisi', 'Batumi', 'Gori', 'Zugdidi', 'Poti', 'Telavi', 'Akhaltsikhe', 'Ozurgeti'];
 
-const conditionLabel: Record<string, string> = {
-  new: 'New',
-  used: 'Used',
-  refurbished: 'Refurbished',
-};
 const conditionColor: Record<string, string> = {
   new: 'bg-teal/10 text-teal border-teal/20',
   used: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -40,9 +36,16 @@ function AcceptModal({
   onClose: () => void;
   onAccepted: (orderId: number) => void;
 }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState<DeliveryForm>({ delivery_address: '', delivery_city: '', phone: '' });
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState('');
+
+  const conditionLabel: Record<string, string> = {
+    new: t('product.new'),
+    used: t('product.used'),
+    refurbished: t('product.refurbished'),
+  };
 
   const set = (k: keyof DeliveryForm, v: string) => setForm(p => ({ ...p, [k]: v }));
 
@@ -57,7 +60,7 @@ function AcceptModal({
       });
       onAccepted(res.orderId);
     } catch (e: any) {
-      setErr(e.message || 'Failed to accept offer');
+      setErr(e.message || t('dashboardRequest.failedToAccept'));
     } finally {
       setSubmitting(false);
     }
@@ -67,7 +70,7 @@ function AcceptModal({
     <div className="fixed inset-0 bg-dark/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-md card-shadow border border-teal-border">
         <div className="flex items-center justify-between p-6 border-b border-teal-border">
-          <h3 className="font-black text-dark text-lg">Accept Offer</h3>
+          <h3 className="font-black text-dark text-lg">{t('dashboardRequest.acceptOfferTitle')}</h3>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-teal-wash transition-colors text-muted hover:text-dark">
             <X size={18} />
           </button>
@@ -77,7 +80,7 @@ function AcceptModal({
           {/* Offer summary */}
           <div className="bg-teal-wash border border-teal-border rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-bold text-dark">{offer.shop?.name || 'Seller'}</span>
+              <span className="font-bold text-dark">{offer.shop?.name || t('dashboardRequest.sellerFallback')}</span>
               <span className="text-2xl font-black text-teal">₾{Number(offer.price).toFixed(0)}</span>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
@@ -88,7 +91,7 @@ function AcceptModal({
               )}
               {offer.delivery_days && (
                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-full border bg-slate-50 text-slate-600 border-slate-200 font-semibold">
-                  <Truck size={10} /> {offer.delivery_days} days
+                  <Truck size={10} /> {offer.delivery_days} {t('dashboardRequest.deliveryDays')}
                 </span>
               )}
             </div>
@@ -99,33 +102,33 @@ function AcceptModal({
 
           <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">
             <AlertCircle size={14} className="mt-0.5 shrink-0" />
-            <span>Payment will be <strong>held by partz.ge</strong> until you confirm delivery. Release it only after you receive and verify the part.</span>
+            <span>{t('dashboardRequest.paymentHeldNotice')} <strong>{t('dashboardRequest.paymentHeldNoticeStrong')}</strong> {t('dashboardRequest.paymentHeldNoticeSuffix')}</span>
           </div>
 
           {/* Delivery form */}
           <div className="space-y-3">
-            <p className="text-sm font-bold text-dark">Delivery Details</p>
+            <p className="text-sm font-bold text-dark">{t('cart.deliveryDetails')}</p>
             <div>
-              <label className="field-label">Delivery Address *</label>
+              <label className="field-label">{t('dashboardRequest.deliveryAddressLabel')}</label>
               <div className="input-wrap">
                 <span className="input-icon"><MapPin size={14} /></span>
                 <input value={form.delivery_address} onChange={e => set('delivery_address', e.target.value)}
-                  placeholder="Street, building, apartment" required />
+                  placeholder={t('dashboardRequest.addressPlaceholder')} required />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="field-label">City *</label>
+                <label className="field-label">{t('dashboardRequest.cityLabelRequired')}</label>
                 <div className="input-wrap">
                   <select value={form.delivery_city} onChange={e => set('delivery_city', e.target.value)}
                     className="bg-white appearance-none" required>
-                    <option value="">Select city</option>
+                    <option value="">{t('dashboardRequest.selectCityOption')}</option>
                     {CITIES.map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label className="field-label">Phone *</label>
+                <label className="field-label">{t('dashboardRequest.phoneLabelRequired')}</label>
                 <div className="input-wrap">
                   <span className="input-icon"><Phone size={14} /></span>
                   <input type="tel" value={form.phone} onChange={e => set('phone', e.target.value)}
@@ -145,7 +148,7 @@ function AcceptModal({
             className="btn-teal w-full py-3.5 justify-center rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
             {submitting
               ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : <><CheckCircle size={16} /> Confirm & Place Order</>
+              : <><CheckCircle size={16} /> {t('dashboardRequest.confirmPlaceOrder')}</>
             }
           </button>
         </div>
@@ -158,6 +161,13 @@ export default function RequestDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = Number(params.id);
+  const { t } = useLanguage();
+
+  const conditionLabel: Record<string, string> = {
+    new: t('product.new'),
+    used: t('product.used'),
+    refurbished: t('product.refurbished'),
+  };
 
   const [user, setUser] = useState<any>(null);
   const [request, setRequest] = useState<any>(null);
@@ -199,8 +209,8 @@ export default function RequestDetailPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-muted">
         <Package size={40} className="opacity-30" />
-        <p className="font-bold text-dark">Request not found</p>
-        <Link href="/dashboard" className="btn-teal">Back to Dashboard</Link>
+        <p className="font-bold text-dark">{t('dashboardRequest.notFound')}</p>
+        <Link href="/dashboard" className="btn-teal">{t('dashboardRequest.backToDashboard')}</Link>
       </div>
     );
   }
@@ -212,12 +222,12 @@ export default function RequestDetailPage() {
           <div className="w-20 h-20 rounded-full bg-teal/10 border-2 border-teal flex items-center justify-center mx-auto mb-6">
             <CheckCircle size={36} className="text-teal" />
           </div>
-          <h2 className="text-2xl font-black text-dark mb-2">Order Created!</h2>
-          <p className="text-muted mb-1">Your order has been placed and payment is held securely.</p>
-          <p className="text-sm text-muted mb-8">Once the seller confirms shipment, you can confirm delivery and payment will be released.</p>
+          <h2 className="text-2xl font-black text-dark mb-2">{t('dashboardRequest.orderCreated')}</h2>
+          <p className="text-muted mb-1">{t('dashboardRequest.orderCreatedDesc')}</p>
+          <p className="text-sm text-muted mb-8">{t('dashboardRequest.orderCreatedDesc2')}</p>
           <div className="flex gap-3 justify-center">
-            <Link href="/dashboard?tab=orders" className="btn-teal">View Orders</Link>
-            <Link href="/dashboard" className="btn-secondary px-5">Dashboard</Link>
+            <Link href="/dashboard?tab=orders" className="btn-teal">{t('dashboardRequest.viewOrders')}</Link>
+            <Link href="/dashboard" className="btn-secondary px-5">{t('nav.dashboard')}</Link>
           </div>
         </div>
       </div>
@@ -225,10 +235,10 @@ export default function RequestDetailPage() {
   }
 
   const statusLabel: Record<string, string> = {
-    open: 'Waiting for offers',
-    offered: 'Offers received',
-    fulfilled: 'Fulfilled',
-    closed: 'Closed',
+    open: t('dashboardRequest.statusWaitingForOffers'),
+    offered: t('dashboard.statusOffered'),
+    fulfilled: t('dashboard.statusFulfilled'),
+    closed: t('dashboard.statusClosed'),
   };
 
   return (
@@ -250,7 +260,7 @@ export default function RequestDetailPage() {
               <ChevronLeft size={18} />
             </Link>
             <div>
-              <p className="text-white/60 text-xs">Part Request</p>
+              <p className="text-white/60 text-xs">{t('dashboardRequest.partRequestLabel')}</p>
               <h1 className="text-lg font-black text-white">
                 {request.brand?.name} {request.model?.name} {request.year && `(${request.year})`}
               </h1>
@@ -281,21 +291,21 @@ export default function RequestDetailPage() {
             {request.description}
           </p>
           <p className="text-xs text-muted mt-3 flex items-center gap-1">
-            <Clock size={11} /> Submitted {new Date(request.created_at).toLocaleDateString()}
+            <Clock size={11} /> {t('dashboardRequest.submittedLabel')} {new Date(request.created_at).toLocaleDateString()}
           </p>
         </div>
 
         {/* Offers */}
         <div>
           <h3 className="font-black text-dark text-lg mb-4">
-            {offers.length === 0 ? 'No offers yet' : `${offers.length} Offer${offers.length > 1 ? 's' : ''} Received`}
+            {offers.length === 0 ? t('dashboardRequest.noOffersYet') : `${offers.length} ${t('dashboardRequest.offersReceivedCount')}`}
           </h3>
 
           {offers.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-teal-border text-muted">
               <Clock size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="font-bold text-dark mb-1">Waiting for sellers</p>
-              <p className="text-sm">Sellers matching your car brand will see your request and send offers.</p>
+              <p className="font-bold text-dark mb-1">{t('dashboardRequest.waitingForSellers')}</p>
+              <p className="text-sm">{t('dashboardRequest.waitingForSellersDesc')}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -310,17 +320,17 @@ export default function RequestDetailPage() {
                           <span className="text-white text-sm font-black">{offer.shop?.name?.[0] || 'S'}</span>
                         </div>
                         <div>
-                          <div className="font-black text-dark">{offer.shop?.name || 'Seller'}</div>
+                          <div className="font-black text-dark">{offer.shop?.name || t('dashboardRequest.sellerFallback')}</div>
                           {offer.shop?.city && <div className="text-xs text-muted">{offer.shop.city}</div>}
                         </div>
                         {offer.status === 'accepted' && (
                           <span className="ml-auto flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-teal/10 text-teal border border-teal/20">
-                            <Star size={10} /> Accepted
+                            <Star size={10} /> {t('dashboard.orderAccepted')}
                           </span>
                         )}
                         {offer.status === 'rejected' && (
                           <span className="ml-auto text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-50 text-slate-400 border border-slate-200">
-                            Rejected
+                            {t('dashboardRequest.offerRejected')}
                           </span>
                         )}
                       </div>
@@ -334,12 +344,12 @@ export default function RequestDetailPage() {
                         )}
                         {offer.delivery_days && (
                           <span className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full border bg-slate-50 text-slate-600 border-slate-200">
-                            <Truck size={10} /> {offer.delivery_days} days delivery
+                            <Truck size={10} /> {offer.delivery_days} {t('dashboardRequest.deliveryDays')}
                           </span>
                         )}
                         {offer.part_number && (
                           <span className="text-xs font-semibold px-2.5 py-1 rounded-full border bg-slate-50 text-slate-600 border-slate-200">
-                            PN: {offer.part_number}
+                            {t('dashboardRequest.partNumberShort')}: {offer.part_number}
                           </span>
                         )}
                       </div>
@@ -358,7 +368,7 @@ export default function RequestDetailPage() {
                         <button
                           onClick={() => setAcceptingOffer(offer)}
                           className="btn-teal px-6 py-2.5 whitespace-nowrap">
-                          <CheckCircle size={15} /> Accept Offer
+                          <CheckCircle size={15} /> {t('dashboardRequest.acceptOffer')}
                         </button>
                       )}
                     </div>

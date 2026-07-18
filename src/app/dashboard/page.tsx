@@ -9,26 +9,29 @@ import {
 } from 'lucide-react';
 import { getUser, ordersApi, requestsApi } from '@/lib/api';
 import { useSocketEvent } from '@/lib/socket';
-
-const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
-  open:      { label: 'Waiting',         color: 'bg-yellow/15 text-dark border-yellow/25',    icon: Clock },
-  offered:   { label: 'Offers Received', color: 'bg-teal/10 text-teal border-teal/20',        icon: Bell },
-  fulfilled: { label: 'Fulfilled',       color: 'bg-teal/10 text-teal border-teal/20',        icon: CheckCircle },
-  closed:    { label: 'Closed',          color: 'bg-slate-50 text-slate-400 border-slate-200', icon: XCircle },
-};
-
-const orderStatusConfig: Record<string, { label: string; color: string }> = {
-  pending:   { label: 'Pending',   color: 'bg-yellow/15 text-dark border-yellow/25' },
-  accepted:  { label: 'Accepted',  color: 'bg-teal/10 text-teal border-teal/20' },
-  paid:      { label: 'Paid',      color: 'bg-teal/10 text-teal border-teal/20' },
-  completed: { label: 'Delivered', color: 'bg-teal/10 text-teal border-teal/20' },
-  cancelled: { label: 'Cancelled', color: 'bg-red-50 text-red-500 border-red-100' },
-};
+import { useLanguage } from '@/context/LanguageContext';
 
 type Tab = 'requests' | 'orders';
 
 export default function Dashboard() {
   const router = useRouter();
+  const { t } = useLanguage();
+
+  const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
+    open:      { label: t('dashboard.statusOpen'),     color: 'bg-yellow/15 text-dark border-yellow/25',    icon: Clock },
+    offered:   { label: t('dashboard.statusOffered'),  color: 'bg-teal/10 text-teal border-teal/20',        icon: Bell },
+    fulfilled: { label: t('dashboard.statusFulfilled'), color: 'bg-teal/10 text-teal border-teal/20',       icon: CheckCircle },
+    closed:    { label: t('dashboard.statusClosed'),   color: 'bg-slate-50 text-slate-400 border-slate-200', icon: XCircle },
+  };
+
+  const orderStatusConfig: Record<string, { label: string; color: string }> = {
+    pending:   { label: t('dashboard.orderPending'),   color: 'bg-yellow/15 text-dark border-yellow/25' },
+    accepted:  { label: t('dashboard.orderAccepted'),  color: 'bg-teal/10 text-teal border-teal/20' },
+    paid:      { label: t('dashboard.orderPaid'),      color: 'bg-teal/10 text-teal border-teal/20' },
+    completed: { label: t('dashboard.orderCompleted'), color: 'bg-teal/10 text-teal border-teal/20' },
+    cancelled: { label: t('dashboard.orderCancelled'), color: 'bg-red-50 text-red-500 border-red-100' },
+  };
+
   const [user, setUser] = useState<any>(null);
   const [tab, setTab] = useState<Tab>('requests');
   const [requests, setRequests] = useState<any[]>([]);
@@ -74,30 +77,30 @@ export default function Dashboard() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="gradient-teal py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div>
-            <p className="text-white/60 text-sm">Dashboard</p>
+            <p className="text-white/60 text-sm">{t('nav.dashboard')}</p>
             <h1 className="text-xl font-black text-white">{user.name}</h1>
             <span className="inline-flex items-center gap-1.5 mt-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-white/20 text-white">
-              {isSeller ? <><Store size={11} /> Seller</> : <><ShoppingBag size={11} /> Customer</>}
+              {isSeller ? <><Store size={11} /> {t('auth.sellerTitle')}</> : <><ShoppingBag size={11} /> {t('auth.customerTitle')}</>}
             </span>
           </div>
           <div className="flex items-center gap-2">
             {!isSeller && (
               <Link href="/request" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white text-sm font-bold rounded-xl transition-all">
-                <Plus size={16} /> New Request
+                <Plus size={16} /> {t('request.newRequest')}
               </Link>
             )}
             {isSeller && (
               <Link href="/dashboard/supplier" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white text-sm font-bold rounded-xl transition-all">
-                <Store size={16} /> Seller Panel <ArrowRight size={15} />
+                <Store size={16} /> {t('nav.sellerPanel')} <ArrowRight size={15} />
               </Link>
             )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Seller: no shop yet prompt */}
         {isSeller && (
@@ -106,11 +109,11 @@ export default function Dashboard() {
               <Store size={28} className="text-teal" />
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <h3 className="font-black text-dark text-lg mb-1">Seller Dashboard</h3>
-              <p className="text-muted text-sm">Manage your shop, view incoming requests, and handle orders from your seller panel.</p>
+              <h3 className="font-black text-dark text-lg mb-1">{t('dashboard.sellerDashboardTitle')}</h3>
+              <p className="text-muted text-sm">{t('dashboard.sellerDashboardDesc')}</p>
             </div>
             <Link href="/dashboard/supplier" className="btn-primary shrink-0 whitespace-nowrap">
-              <Store size={16} /> Open Seller Panel <ArrowRight size={15} />
+              <Store size={16} /> {t('dashboard.openSellerPanel')} <ArrowRight size={15} />
             </Link>
           </div>
         )}
@@ -119,10 +122,10 @@ export default function Dashboard() {
         {!isSeller && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             {[
-              { label: 'Active Requests', value: String(requests.filter(r => r.status === 'open' || r.status === 'offered').length), color: 'text-teal' },
-              { label: 'Offers Received', value: String(requests.reduce((s: number, r: any) => s + (r.offers?.length || 0), 0)), color: 'text-teal-dark' },
-              { label: 'Total Orders', value: String(orders.length), color: 'text-dark' },
-              { label: 'Total Spent', value: `₾${totalSpent.toFixed(0)}`, color: 'text-teal' },
+              { label: t('dashboard.statActiveRequests'), value: String(requests.filter(r => r.status === 'open' || r.status === 'offered').length), color: 'text-teal' },
+              { label: t('dashboard.statOffersReceived'), value: String(requests.reduce((s: number, r: any) => s + (r.offers?.length || 0), 0)), color: 'text-teal-dark' },
+              { label: t('dashboard.statTotalOrders'), value: String(orders.length), color: 'text-dark' },
+              { label: t('dashboard.statTotalSpent'), value: `₾${totalSpent.toFixed(0)}`, color: 'text-teal' },
             ].map((s) => (
               <div key={s.label} className="bg-white rounded-2xl p-5 card-shadow border border-teal-border">
                 <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
@@ -136,10 +139,10 @@ export default function Dashboard() {
         {!isSeller && (
           <>
             <div className="flex gap-1 bg-teal-wash border border-teal-border rounded-xl p-1 w-fit mb-6">
-              {(['requests', 'orders'] as Tab[]).map((t) => (
-                <button key={t} onClick={() => setTab(t)}
-                  className={`px-5 py-2.5 text-sm font-bold rounded-lg transition-all capitalize ${tab === t ? 'bg-teal text-white' : 'text-muted hover:text-dark'}`}>
-                  {t}
+              {(['requests', 'orders'] as Tab[]).map((tabKey) => (
+                <button key={tabKey} onClick={() => setTab(tabKey)}
+                  className={`px-5 py-2.5 text-sm font-bold rounded-lg transition-all capitalize ${tab === tabKey ? 'bg-teal text-white' : 'text-muted hover:text-dark'}`}>
+                  {tabKey === 'requests' ? t('dashboard.tabRequests') : t('dashboard.tabOrders')}
                 </button>
               ))}
             </div>
@@ -155,9 +158,9 @@ export default function Dashboard() {
                     {requests.length === 0 ? (
                       <div className="text-center py-16 text-muted">
                         <Package size={40} className="mx-auto mb-3 opacity-30" />
-                        <p className="font-bold text-dark mb-1">No requests yet</p>
-                        <p className="text-sm mb-4">Send a part request and sellers will make you offers.</p>
-                        <Link href="/request" className="btn-teal">New Request</Link>
+                        <p className="font-bold text-dark mb-1">{t('dashboard.noRequestsYet')}</p>
+                        <p className="text-sm mb-4">{t('dashboard.noRequestsDesc')}</p>
+                        <Link href="/request" className="btn-teal">{t('request.newRequest')}</Link>
                       </div>
                     ) : (
                       requests.map((r) => {
@@ -174,16 +177,16 @@ export default function Dashboard() {
                                   <Icon size={10} /> {sc.label}
                                 </span>
                               </div>
-                              <p className="text-sm text-muted">{r.category?.name || 'General'} · {new Date(r.created_at).toLocaleDateString()}</p>
+                              <p className="text-sm text-muted">{r.category?.name || t('dashboard.generalCategory')} · {new Date(r.created_at).toLocaleDateString()}</p>
                             </div>
                             <div className="flex items-center gap-3">
                               {(r.offers?.length || 0) > 0 && (
                                 <span className="text-sm font-bold text-teal bg-teal/10 border border-teal/20 px-3 py-1.5 rounded-lg">
-                                  {r.offers.length} offers
+                                  {r.offers.length} {t('dashboard.offersCount')}
                                 </span>
                               )}
                               <Link href={`/dashboard/requests/${r.id}`} className="flex items-center gap-1 text-sm font-semibold text-muted hover:text-dark transition-colors">
-                                View <ChevronRight size={15} />
+                                {t('product.view')} <ChevronRight size={15} />
                               </Link>
                             </div>
                           </div>
@@ -198,9 +201,9 @@ export default function Dashboard() {
                     {orders.length === 0 ? (
                       <div className="text-center py-16 text-muted">
                         <Package size={40} className="mx-auto mb-3 opacity-30" />
-                        <p className="font-bold text-dark mb-1">No orders yet</p>
-                        <p className="text-sm mb-4">Browse parts and place your first order.</p>
-                        <Link href="/parts" className="btn-teal">Browse Parts</Link>
+                        <p className="font-bold text-dark mb-1">{t('activity.noOrdersYet')}</p>
+                        <p className="text-sm mb-4">{t('dashboard.noOrdersDesc')}</p>
+                        <Link href="/parts" className="btn-teal">{t('cart.browseParts')}</Link>
                       </div>
                     ) : (
                       orders.map((o) => {
@@ -210,10 +213,10 @@ export default function Dashboard() {
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                  <h3 className="font-bold text-dark">Order #{o.id}</h3>
+                                  <h3 className="font-bold text-dark">{t('dashboard.orderHash')} #{o.id}</h3>
                                   <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${sc.color}`}>{sc.label}</span>
                                 </div>
-                                <p className="text-sm text-muted">{o.items?.length || 0} item(s) · {o.delivery_city} · {new Date(o.created_at).toLocaleDateString()}</p>
+                                <p className="text-sm text-muted">{o.items?.length || 0} {t('cart.itemPlural')} · {o.delivery_city} · {new Date(o.created_at).toLocaleDateString()}</p>
                               </div>
                               <div className="flex items-center gap-3">
                                 <span className="text-xl font-black text-teal">₾{Number(o.total).toFixed(0)}</span>
@@ -225,7 +228,7 @@ export default function Dashboard() {
                                   >
                                     {completing === o.id
                                       ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                      : <><CheckCircle size={14} /> Confirm Delivery</>
+                                      : <><CheckCircle size={14} /> {t('dashboard.confirmDelivery')}</>
                                     }
                                   </button>
                                 )}
@@ -234,7 +237,7 @@ export default function Dashboard() {
                             {o.status === 'accepted' && (
                               <div className="mt-3 flex items-start gap-2 bg-teal-wash border border-teal/20 rounded-xl p-3 text-sm text-muted">
                                 <AlertCircle size={14} className="text-teal mt-0.5 shrink-0" />
-                                <span>Click <strong className="text-dark">Confirm Delivery</strong> once you receive your parts. This releases payment to the seller.</span>
+                                <span>{t('dashboard.confirmDeliveryHintPrefix')} <strong className="text-dark">{t('dashboard.confirmDelivery')}</strong> {t('dashboard.confirmDeliveryHintSuffix')}</span>
                               </div>
                             )}
                           </div>
@@ -252,9 +255,9 @@ export default function Dashboard() {
         {isSeller && !loading && (
           <div className="text-center py-8 text-muted">
             <Store size={40} className="mx-auto mb-3 opacity-30" />
-            <p className="font-bold text-dark mb-1">You&apos;re a seller</p>
-            <p className="text-sm mb-4">Use the Seller Panel to manage requests, quotes, and orders.</p>
-            <Link href="/dashboard/supplier" className="btn-teal">Open Seller Panel</Link>
+            <p className="font-bold text-dark mb-1">{t('dashboard.youAreSeller')}</p>
+            <p className="text-sm mb-4">{t('dashboard.sellerRedirectDesc')}</p>
+            <Link href="/dashboard/supplier" className="btn-teal">{t('dashboard.openSellerPanel')}</Link>
           </div>
         )}
       </div>

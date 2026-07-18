@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { MapPin, Clock, ChevronRight, ShoppingBag, ArrowRight, Bell } from 'lucide-react';
 import { shopsApi } from '@/lib/api';
 import { useSocketEvent } from '@/lib/socket';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface RequestActivity {
   id: number;
@@ -22,17 +23,18 @@ interface OrderActivity {
   created_at: string;
 }
 
-function timeAgo(iso: string) {
+function timeAgo(iso: string, t: (path: string) => string) {
   const seconds = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
-  if (seconds < 60) return 'just now';
+  if (seconds < 60) return t('time.justNow');
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} min ago`;
+  if (minutes < 60) return `${minutes} ${t('time.minAgo')}`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
+  if (hours < 24) return `${hours}${t('time.hAgo')}`;
+  return `${Math.floor(hours / 24)}${t('time.dAgo')}`;
 }
 
 export default function LiveActivityFeed() {
+  const { t } = useLanguage();
   const [requests, setRequests] = useState<RequestActivity[]>([]);
   const [orders, setOrders] = useState<OrderActivity[]>([]);
   const [flashRequest, setFlashRequest] = useState(false);
@@ -73,7 +75,7 @@ export default function LiveActivityFeed() {
 
   return (
     <section className="py-14 bg-teal-wash border-y border-teal-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
@@ -81,14 +83,14 @@ export default function LiveActivityFeed() {
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center gap-1.5 px-3 py-1 bg-teal/10 border border-teal/20 rounded-full text-teal text-xs font-bold uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-                Live Now
+                {t('activity.liveNow')}
               </span>
             </div>
-            <h2 className="text-2xl font-black text-dark">Platform Activity</h2>
-            <p className="text-muted text-sm mt-1">Real requests and orders happening right now</p>
+            <h2 className="text-2xl font-black text-dark">{t('activity.platformActivity')}</h2>
+            <p className="text-muted text-sm mt-1">{t('activity.subtitle')}</p>
           </div>
           <Link href="/request" className="btn-primary shrink-0 self-start sm:self-auto">
-            Post Your Request <ArrowRight size={15} />
+            {t('activity.postRequest')} <ArrowRight size={15} />
           </Link>
         </div>
 
@@ -98,12 +100,12 @@ export default function LiveActivityFeed() {
           <div className="lg:col-span-3">
             <div className="flex items-center gap-2 mb-4">
               <Bell size={14} className="text-teal" />
-              <h3 className="text-sm font-bold text-dark uppercase tracking-wider">Live Part Requests</h3>
+              <h3 className="text-sm font-bold text-dark uppercase tracking-wider">{t('activity.liveRequests')}</h3>
             </div>
 
             {requests.length === 0 ? (
               <div className="bg-white border border-dashed border-teal-border rounded-xl p-8 text-center text-sm text-muted">
-                No requests yet — be the first to <Link href="/request" className="text-teal font-bold">post one</Link>.
+                {t('activity.noRequestsYet')} <Link href="/request" className="text-teal font-bold">{t('activity.postOne')}</Link>.
               </div>
             ) : (
               <div className="space-y-2.5">
@@ -128,12 +130,12 @@ export default function LiveActivityFeed() {
                             )}
                             {fulfilled && (
                               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple/10 text-purple border border-purple/20 shrink-0">
-                                Sold
+                                {t('activity.fulfilled')}
                               </span>
                             )}
                           </div>
                           <p className="text-xs text-muted flex items-center gap-1">
-                            <Clock size={10} /> {timeAgo(req.created_at)}
+                            <Clock size={10} /> {timeAgo(req.created_at, t)}
                           </p>
                         </div>
                       </div>
@@ -151,12 +153,12 @@ export default function LiveActivityFeed() {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-4">
                 <ShoppingBag size={14} className="text-teal" />
-                <h3 className="text-sm font-bold text-dark uppercase tracking-wider">Recent Orders</h3>
+                <h3 className="text-sm font-bold text-dark uppercase tracking-wider">{t('activity.recentOrders')}</h3>
               </div>
 
               {orders.length === 0 ? (
                 <div className="bg-white border border-dashed border-teal-border rounded-xl p-6 text-center text-sm text-muted">
-                  No orders yet
+                  {t('activity.noOrdersYet')}
                 </div>
               ) : (
                 <div className="space-y-2.5">
@@ -167,12 +169,12 @@ export default function LiveActivityFeed() {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="flex items-center gap-1 text-xs text-muted">
-                          <MapPin size={10} /> {order.city || 'Georgia'}
+                          <MapPin size={10} /> {order.city || t('activity.georgia')}
                         </span>
                         <span className="text-base font-black text-teal shrink-0">₾{Number(order.total || 0).toFixed(0)}</span>
                       </div>
                       <p className="text-xs text-subtle mt-1 flex items-center gap-0.5">
-                        <Clock size={9} /> {timeAgo(order.created_at)}
+                        <Clock size={9} /> {timeAgo(order.created_at, t)}
                       </p>
                     </div>
                   ))}
@@ -184,16 +186,16 @@ export default function LiveActivityFeed() {
             <div className="bg-white border border-teal-border rounded-2xl p-5 card-shadow">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-                <span className="text-xs font-bold text-teal uppercase tracking-wider">For Sellers</span>
+                <span className="text-xs font-bold text-teal uppercase tracking-wider">{t('activity.forSellers')}</span>
               </div>
               <h4 className="text-base font-black text-dark mb-2 leading-snug">
-                These customers need your help right now
+                {t('activity.sellerCtaTitle')}
               </h4>
               <p className="text-xs text-muted mb-4 leading-relaxed">
-                Register as a seller and get a shop instantly — free, you only pay when you win business.
+                {t('activity.sellerCtaDesc')}
               </p>
               <Link href="/auth/register?role=seller" className="btn-teal w-full justify-center py-3 text-sm">
-                Become a Seller <ArrowRight size={14} />
+                {t('activity.becomeSeller')} <ArrowRight size={14} />
               </Link>
             </div>
           </div>

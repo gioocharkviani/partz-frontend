@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { Car, ShoppingBag, Store, Check, Eye, EyeOff, MapPin, Phone, Mail, User, Building2 } from 'lucide-react';
 import { authApi, saveAuth } from '@/lib/api';
 import { refreshSocketAuth } from '@/lib/socket';
+import { useLanguage } from '@/context/LanguageContext';
 
 type UserType = 'customer' | 'seller' | null;
 
@@ -26,6 +27,7 @@ const CITIES = ['Tbilisi', 'Rustavi', 'Kutaisi', 'Batumi', 'Gori', 'Zugdidi', 'P
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const prefillRole = searchParams.get('role');
 
   const [userType, setUserType] = useState<UserType>(
@@ -60,7 +62,7 @@ function RegisterForm() {
       refreshSocketAuth();
       setDone(true);
     } catch (err: any) {
-      setApiError(err.message || 'Registration failed');
+      setApiError(err.message || t('auth.registerFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -75,14 +77,12 @@ function RegisterForm() {
         <div className="w-20 h-20 rounded-full bg-teal/10 border-2 border-teal flex items-center justify-center mx-auto mb-5">
           <Check size={36} className="text-teal" />
         </div>
-        <h2 className="text-2xl font-black text-dark mb-2">Account Created!</h2>
+        <h2 className="text-2xl font-black text-dark mb-2">{t('auth.accountCreated')}</h2>
         <p className="text-muted mb-6">
-          {userType === 'customer'
-            ? 'Welcome to partz.ge! Start searching for your car parts.'
-            : 'Your seller account is ready. Create your shop from the dashboard.'}
+          {userType === 'customer' ? t('auth.welcomeCustomer') : t('auth.welcomeSeller')}
         </p>
         <button onClick={() => router.push(userType === 'customer' ? '/parts' : '/dashboard/supplier')} className="btn-teal">
-          {userType === 'customer' ? 'Browse Parts' : 'Setup Your Shop'}
+          {userType === 'customer' ? t('auth.browseParts') : t('auth.setupShop')}
         </button>
       </div>
     );
@@ -92,8 +92,8 @@ function RegisterForm() {
   if (!userType) {
     return (
       <div>
-        <h2 className="text-2xl font-black text-dark mb-2 text-center">Create Account</h2>
-        <p className="text-muted text-sm text-center mb-8">Choose how you&apos;ll use partz.ge</p>
+        <h2 className="text-2xl font-black text-dark mb-2 text-center">{t('auth.registerTitle')}</h2>
+        <p className="text-muted text-sm text-center mb-8">{t('auth.chooseType')}</p>
         <div className="grid sm:grid-cols-2 gap-4 mb-8">
           <button
             onClick={() => setUserType('customer')}
@@ -102,8 +102,8 @@ function RegisterForm() {
             <div className="w-12 h-12 rounded-xl bg-teal/10 flex items-center justify-center mb-4 group-hover:bg-teal/20 transition-colors">
               <ShoppingBag size={24} className="text-teal" />
             </div>
-            <h3 className="text-lg font-black text-dark mb-1">Customer</h3>
-            <p className="text-sm text-muted">Search for car parts, send requests, and buy from verified sellers.</p>
+            <h3 className="text-lg font-black text-dark mb-1">{t('auth.customerTitle')}</h3>
+            <p className="text-sm text-muted">{t('auth.customerDesc')}</p>
           </button>
           <button
             onClick={() => setUserType('seller')}
@@ -112,13 +112,13 @@ function RegisterForm() {
             <div className="w-12 h-12 rounded-xl bg-teal/10 flex items-center justify-center mb-4 group-hover:bg-teal/20 transition-colors">
               <Store size={24} className="text-teal" />
             </div>
-            <h3 className="text-lg font-black text-dark mb-1">Seller</h3>
-            <p className="text-sm text-muted">List your parts, open a shop, and receive requests from buyers.</p>
+            <h3 className="text-lg font-black text-dark mb-1">{t('auth.sellerTitle')}</h3>
+            <p className="text-sm text-muted">{t('auth.sellerDesc')}</p>
           </button>
         </div>
         <p className="text-center text-sm text-muted">
-          Already have an account?{' '}
-          <Link href="/auth/login" className="text-teal font-bold hover:text-teal-dark">Sign in</Link>
+          {t('auth.haveAccount')}{' '}
+          <Link href="/auth/login" className="text-teal font-bold hover:text-teal-dark">{t('auth.loginHere')}</Link>
         </p>
       </div>
     );
@@ -129,11 +129,11 @@ function RegisterForm() {
     <div>
       {/* Type switcher */}
       <div className="flex gap-2 p-1 bg-teal-wash rounded-xl border border-teal-border mb-6">
-        {(['customer', 'seller'] as UserType[]).map((t) => (
-          <button key={t!} onClick={() => setUserType(t)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-black transition-all ${userType === t ? 'bg-white text-teal shadow-sm border border-teal-border' : 'text-muted hover:text-dark'}`}>
-            {t === 'customer' ? <ShoppingBag size={14} /> : <Store size={14} />}
-            {t === 'customer' ? 'Customer' : 'Seller'}
+        {(['customer', 'seller'] as UserType[]).map((ut) => (
+          <button key={ut!} onClick={() => setUserType(ut)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-black transition-all ${userType === ut ? 'bg-white text-teal shadow-sm border border-teal-border' : 'text-muted hover:text-dark'}`}>
+            {ut === 'customer' ? <ShoppingBag size={14} /> : <Store size={14} />}
+            {ut === 'customer' ? t('auth.customerTitle') : t('auth.sellerTitle')}
           </button>
         ))}
       </div>
@@ -141,31 +141,31 @@ function RegisterForm() {
       <div className="space-y-4">
         {userType === 'seller' && (
           <div>
-            <label className="field-label">Business / Shop Name *</label>
+            <label className="field-label">{t('auth.businessName')} *</label>
             <div className="input-wrap">
               <span className="input-icon"><Building2 size={14} /></span>
               <input value={form.businessName} onChange={(e) => set('businessName', e.target.value)}
-                placeholder="e.g. AutoParts Tbilisi" />
+                placeholder={t('auth.businessNamePlaceholder')} />
             </div>
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="field-label">Full Name *</label>
+            <label className="field-label">{t('auth.fullName')} *</label>
             <div className="input-wrap">
               <span className="input-icon"><User size={14} /></span>
               <input value={form.name} onChange={(e) => set('name', e.target.value)}
-                placeholder="Giorgi Beridze" />
+                placeholder={t('auth.fullNamePlaceholder')} />
             </div>
           </div>
           <div>
-            <label className="field-label">City</label>
+            <label className="field-label">{t('auth.city')}</label>
             <div className="input-wrap">
               <span className="input-icon"><MapPin size={14} /></span>
               <select value={form.city} onChange={(e) => set('city', e.target.value)}
                 className="bg-white appearance-none">
-                <option value="">Select</option>
+                <option value="">{t('auth.selectCity')}</option>
                 {CITIES.map((c) => <option key={c}>{c}</option>)}
               </select>
             </div>
@@ -173,7 +173,7 @@ function RegisterForm() {
         </div>
 
         <div>
-          <label className="field-label">Email *</label>
+          <label className="field-label">{t('auth.email')} *</label>
           <div className="input-wrap">
             <span className="input-icon"><Mail size={14} /></span>
             <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)}
@@ -182,7 +182,7 @@ function RegisterForm() {
         </div>
 
         <div>
-          <label className="field-label">Phone</label>
+          <label className="field-label">{t('auth.phone')}</label>
           <div className="input-wrap">
             <span className="input-icon"><Phone size={14} /></span>
             <input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)}
@@ -192,22 +192,22 @@ function RegisterForm() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="field-label">Password *</label>
+            <label className="field-label">{t('auth.password')} *</label>
             <div className="input-wrap">
               <input type={showPassword ? 'text' : 'password'} value={form.password}
                 onChange={(e) => set('password', e.target.value)}
-                placeholder="Min 8 characters" className="pl-4" />
+                placeholder={t('auth.minChars')} className="pl-4" />
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="input-end hover:text-dark transition-colors">
                 {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
           </div>
           <div>
-            <label className="field-label">Confirm *</label>
+            <label className="field-label">{t('auth.confirmPassword')} *</label>
             <div className="input-wrap">
               <input type="password" value={form.confirmPassword}
                 onChange={(e) => set('confirmPassword', e.target.value)}
-                placeholder="Repeat" className="pl-4" />
+                placeholder={t('auth.repeat')} className="pl-4" />
             </div>
           </div>
         </div>
@@ -216,9 +216,9 @@ function RegisterForm() {
           <input type="checkbox" checked={form.terms} onChange={(e) => set('terms', e.target.checked)}
             className="mt-1 accent-teal" />
           <span className="text-sm text-muted">
-            I agree to the{' '}
-            <Link href="/terms" className="text-teal font-semibold hover:underline">Terms</Link>{' '}and{' '}
-            <Link href="/privacy" className="text-teal font-semibold hover:underline">Privacy Policy</Link>
+            {t('auth.agreeTermsPrefix')}{' '}
+            <Link href="/terms" className="text-teal font-semibold hover:underline">{t('auth.termsLink')}</Link>{' '}{t('auth.andWord')}{' '}
+            <Link href="/privacy" className="text-teal font-semibold hover:underline">{t('auth.privacyLink')}</Link>
           </span>
         </label>
 
@@ -232,13 +232,13 @@ function RegisterForm() {
           className="btn-teal w-full justify-center py-3.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
           {submitting
             ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            : `Create ${userType === 'customer' ? 'Customer' : 'Seller'} Account`}
+            : (userType === 'customer' ? t('auth.createCustomerAccount') : t('auth.createSellerAccount'))}
         </button>
       </div>
 
       <p className="text-center text-sm text-muted mt-5">
-        Already have an account?{' '}
-        <Link href="/auth/login" className="text-teal font-bold hover:text-teal-dark">Sign in</Link>
+        {t('auth.haveAccount')}{' '}
+        <Link href="/auth/login" className="text-teal font-bold hover:text-teal-dark">{t('auth.loginHere')}</Link>
       </p>
     </div>
   );

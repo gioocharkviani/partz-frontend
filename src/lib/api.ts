@@ -125,6 +125,14 @@ export const requestsApi = {
     post<any>(`/requests/${requestId}/offer`, dto),
 };
 
+/* ─── VIN ─── */
+export const vinApi = {
+  decode: (vin: string) =>
+    get<{ brand_id?: number; brand_name?: string; model_id?: number; model_name?: string; year?: string; matched: boolean }>(
+      `/vin/decode/${encodeURIComponent(vin)}`,
+    ),
+};
+
 /* ─── Auth helpers ─── */
 export function saveAuth(token: string, user: any) {
   localStorage.setItem('partz_token', token);

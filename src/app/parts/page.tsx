@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Search, SlidersHorizontal, X, ChevronDown, MapPin, Star, Filter, ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { partsApi, shopsApi, resolveUploadUrl } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
 
 const CITIES = ['All', 'Tbilisi', 'Rustavi', 'Kutaisi', 'Batumi', 'Gori', 'Zugdidi', 'Poti', 'Telavi'];
 const CONDITIONS = ['All', 'new', 'used'];
@@ -13,6 +14,7 @@ const CONDITIONS = ['All', 'new', 'used'];
 function PartsContent() {
   const searchParams = useSearchParams();
   const { addToCart } = useCart();
+  const { t } = useLanguage();
 
   const [brands, setBrands] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -42,6 +44,14 @@ function PartsContent() {
       if (match) setSelectedCategoryId(String(match.id));
     }
   }, [searchParams, categories]);
+
+  /* Prefill brand + keyword coming from the homepage search widget */
+  useEffect(() => {
+    const brandId = searchParams.get('brand_id');
+    if (brandId) setSelectedBrandId(brandId);
+    const q = searchParams.get('q');
+    if (q) setSearch(q);
+  }, [searchParams]);
 
   const fetchParts = useCallback(() => {
     setLoading(true);
@@ -79,7 +89,7 @@ function PartsContent() {
   const activeFilters = [
     selectedCategoryId && categories.find((c) => String(c.id) === selectedCategoryId)?.name,
     selectedBrandId && brands.find((b) => String(b.id) === selectedBrandId)?.name,
-    selectedCondition !== 'All' && selectedCondition,
+    selectedCondition !== 'All' && (selectedCondition === 'new' ? t('product.new') : t('product.used')),
     selectedCity !== 'All' && selectedCity,
     maxPrice < 2000 && `≤ ₾${maxPrice}`,
   ].filter(Boolean) as string[];
@@ -97,11 +107,11 @@ function PartsContent() {
   const FilterPanel = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">Category</h3>
+        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">{t('search.category')}</h3>
         <div className="space-y-1">
           <button onClick={() => setSelectedCategoryId('')}
             className={`w-full text-left px-3 py-2 rounded-lg text-sm font-semibold transition-all ${!selectedCategoryId ? 'bg-teal text-white' : 'text-muted hover:bg-teal-wash hover:text-dark'}`}>
-            All
+            {t('common.all')}
           </button>
           {topCategories.map((cat) => (
             <button key={cat.id} onClick={() => setSelectedCategoryId(String(cat.id))}
@@ -113,11 +123,11 @@ function PartsContent() {
       </div>
 
       <div>
-        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">Brand</h3>
+        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">{t('search.brand')}</h3>
         <div className="space-y-1 max-h-56 overflow-y-auto">
           <button onClick={() => setSelectedBrandId('')}
             className={`w-full text-left px-3 py-2 rounded-lg text-sm font-semibold transition-all ${!selectedBrandId ? 'bg-teal text-white' : 'text-muted hover:bg-teal-wash hover:text-dark'}`}>
-            All
+            {t('common.all')}
           </button>
           {brands.map((brand) => (
             <button key={brand.id} onClick={() => setSelectedBrandId(String(brand.id))}
@@ -129,31 +139,31 @@ function PartsContent() {
       </div>
 
       <div>
-        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">Condition</h3>
+        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">{t('partsPage.condition')}</h3>
         <div className="flex gap-2">
           {CONDITIONS.map((c) => (
             <button key={c} onClick={() => setSelectedCondition(c)}
               className={`flex-1 py-2 rounded-lg text-xs font-bold border-2 transition-all capitalize ${selectedCondition === c ? 'bg-teal border-teal text-white' : 'border-teal-border text-muted hover:border-teal'}`}>
-              {c}
+              {c === 'All' ? t('common.all') : c === 'new' ? t('product.new') : t('product.used')}
             </button>
           ))}
         </div>
       </div>
 
       <div>
-        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">City</h3>
+        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">{t('auth.city')}</h3>
         <div className="space-y-1">
           {CITIES.map((city) => (
             <button key={city} onClick={() => setSelectedCity(city)}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm font-semibold transition-all ${selectedCity === city ? 'bg-teal text-white' : 'text-muted hover:bg-teal-wash hover:text-dark'}`}>
-              {city}
+              {city === 'All' ? t('common.all') : city}
             </button>
           ))}
         </div>
       </div>
 
       <div>
-        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">Max Price: ₾{maxPrice}</h3>
+        <h3 className="text-xs font-black text-dark uppercase tracking-wider mb-3">{t('partsPage.maxPrice')}: ₾{maxPrice}</h3>
         <input type="range" min={50} max={2000} step={50} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))}
           className="w-full accent-teal" />
         <div className="flex justify-between text-xs text-muted mt-1">
@@ -163,7 +173,7 @@ function PartsContent() {
 
       {activeFilters.length > 0 && (
         <button onClick={resetFilters} className="w-full py-2.5 rounded-xl border-2 border-teal-border text-sm font-bold text-muted hover:border-teal hover:text-teal transition-colors flex items-center justify-center gap-2">
-          <X size={14} /> Reset Filters
+          <X size={14} /> {t('partsPage.resetFilters')}
         </button>
       )}
     </div>
@@ -173,14 +183,14 @@ function PartsContent() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-teal-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-black text-dark mb-1">Car Parts</h1>
-          <p className="text-muted text-sm">Find genuine parts from verified Georgian sellers</p>
+        <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <h1 className="text-3xl font-black text-dark mb-1">{t('partsPage.title')}</h1>
+          <p className="text-muted text-sm">{t('partsPage.subtitle')}</p>
           <div className="mt-5 flex gap-3">
             <div className="relative flex-1">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
               <input value={search} onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search parts, brands, models…"
+                placeholder={t('partsPage.searchPlaceholder')}
                 className="input-base pl-10 w-full" />
               {search && (
                 <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-dark">
@@ -191,16 +201,16 @@ function PartsContent() {
             <div className="relative">
               <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
                 className="input-base pl-3 pr-8 bg-white appearance-none">
-                <option value="featured">Featured</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="rating">Top Rated Shops</option>
+                <option value="featured">{t('partsPage.sortFeatured')}</option>
+                <option value="price-asc">{t('partsPage.sortPriceAsc')}</option>
+                <option value="price-desc">{t('partsPage.sortPriceDesc')}</option>
+                <option value="rating">{t('partsPage.sortRating')}</option>
               </select>
               <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
             </div>
             <button onClick={() => setSidebarOpen(true)}
               className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-teal-border text-sm font-bold text-muted hover:border-teal hover:text-teal transition-colors">
-              <Filter size={15} /> Filters
+              <Filter size={15} /> {t('partsPage.filters')}
               {activeFilters.length > 0 && (
                 <span className="w-5 h-5 bg-teal text-white text-xs rounded-full flex items-center justify-center">{activeFilters.length}</span>
               )}
@@ -213,13 +223,13 @@ function PartsContent() {
                   {f}
                 </span>
               ))}
-              <button onClick={resetFilters} className="text-xs text-muted hover:text-dark underline">clear all</button>
+              <button onClick={resetFilters} className="text-xs text-muted hover:text-dark underline">{t('partsPage.clearAll')}</button>
             </div>
           )}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">
           {/* Sidebar — desktop */}
           <aside className="hidden lg:block w-56 shrink-0">
@@ -236,15 +246,15 @@ function PartsContent() {
               </div>
             ) : (
               <>
-                <p className="text-sm text-muted mb-5 font-semibold">{parts.length} parts found</p>
+                <p className="text-sm text-muted mb-5 font-semibold">{parts.length} {t('partsPage.resultsFound')}</p>
                 {parts.length === 0 ? (
                   <div className="text-center py-20">
                     <div className="w-16 h-16 rounded-2xl bg-teal-wash border-2 border-teal-border flex items-center justify-center mx-auto mb-4">
                       <Search size={28} className="text-muted" />
                     </div>
-                    <h3 className="font-black text-dark text-lg mb-2">No parts found</h3>
-                    <p className="text-muted text-sm mb-4">Try adjusting your filters</p>
-                    <button onClick={resetFilters} className="btn-teal">Reset Filters</button>
+                    <h3 className="font-black text-dark text-lg mb-2">{t('partsPage.noResults')}</h3>
+                    <p className="text-muted text-sm mb-4">{t('partsPage.tryAdjusting')}</p>
+                    <button onClick={resetFilters} className="btn-teal">{t('partsPage.resetFilters')}</button>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -267,7 +277,7 @@ function PartsContent() {
           <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
           <div className="fixed right-0 top-0 bottom-0 w-72 bg-white z-50 overflow-y-auto p-5 lg:hidden">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-black text-dark text-lg flex items-center gap-2"><SlidersHorizontal size={18} /> Filters</h2>
+              <h2 className="font-black text-dark text-lg flex items-center gap-2"><SlidersHorizontal size={18} /> {t('partsPage.filters')}</h2>
               <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-teal-wash rounded-lg">
                 <X size={18} />
               </button>
@@ -281,6 +291,7 @@ function PartsContent() {
 }
 
 function PartCard({ part, justAdded, onAddToCart }: { part: any; justAdded: boolean; onAddToCart: () => void }) {
+  const { t } = useLanguage();
   const img = part.images?.[0] ? resolveUploadUrl(part.images[0]) : '';
   return (
     <div className="bg-white rounded-2xl border border-teal-border overflow-hidden card-shadow group hover:-translate-y-0.5 transition-all duration-200">
@@ -293,7 +304,7 @@ function PartCard({ part, justAdded, onAddToCart }: { part: any; justAdded: bool
             <span className="text-3xl">🔧</span>
           )}
           <span className={`absolute top-3 left-3 text-xs font-black px-2.5 py-1 rounded-full ${part.condition === 'new' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>
-            {part.condition === 'new' ? 'NEW' : 'USED'}
+            {part.condition === 'new' ? t('product.new') : t('product.used')}
           </span>
           {part.category?.name && (
             <span className="absolute top-3 right-3 text-xs font-bold px-2.5 py-1 rounded-full bg-white/90 text-dark shadow-sm">

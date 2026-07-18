@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Check, MapPin, CreditCard, Phone } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { ordersApi, getUser, resolveUploadUrl } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
 
 const CITIES = ['Tbilisi', 'Rustavi', 'Kutaisi', 'Batumi', 'Gori', 'Zugdidi', 'Poti', 'Telavi'];
 
 export default function CartPage() {
   const { items, loading, removeFromCart, updateQty, clearCart, total, count } = useCart();
+  const { t } = useLanguage();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [orderDone, setOrderDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -18,6 +20,12 @@ export default function CartPage() {
   const [form, setForm] = useState({ phone: '', address: '', city: '', notes: '', payment: 'cash' });
 
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
+
+  const paymentOptions = [
+    { v: 'cash', l: t('cart.cashOnDelivery') },
+    { v: 'card', l: t('cart.card') },
+    { v: 'transfer', l: t('cart.bankTransfer') },
+  ];
 
   const handleOrder = async () => {
     setSubmitting(true);
@@ -32,7 +40,7 @@ export default function CartPage() {
       });
       setOrderDone(true);
     } catch (e: any) {
-      setError(e.message || 'Failed to place order');
+      setError(e.message || t('common.error'));
     } finally {
       setSubmitting(false);
     }
@@ -45,11 +53,11 @@ export default function CartPage() {
           <div className="w-20 h-20 rounded-full bg-teal/10 border-2 border-teal flex items-center justify-center mx-auto mb-5">
             <Check size={36} className="text-teal" />
           </div>
-          <h1 className="text-2xl font-black text-dark mb-2">Order Placed!</h1>
-          <p className="text-muted mb-6">Payment is held securely until you confirm delivery. Track your order from the dashboard.</p>
+          <h1 className="text-2xl font-black text-dark mb-2">{t('cart.orderPlaced')}</h1>
+          <p className="text-muted mb-6">{t('cart.orderPlacedDesc')}</p>
           <div className="flex gap-3 justify-center">
-            <Link href="/parts" className="btn-teal">Browse More Parts</Link>
-            <Link href="/dashboard" className="btn-secondary">My Dashboard</Link>
+            <Link href="/parts" className="btn-teal">{t('cart.browseMoreParts')}</Link>
+            <Link href="/dashboard" className="btn-secondary">{t('cart.myDashboard')}</Link>
           </div>
         </div>
       </div>
@@ -63,9 +71,9 @@ export default function CartPage() {
           <div className="w-20 h-20 rounded-2xl bg-teal-wash border-2 border-teal-border flex items-center justify-center mx-auto mb-5">
             <ShoppingCart size={32} className="text-muted" />
           </div>
-          <h1 className="text-2xl font-black text-dark mb-2">Sign in to view your cart</h1>
-          <p className="text-muted mb-6">Your cart is tied to your account.</p>
-          <Link href="/auth/login?redirect=/cart" className="btn-teal">Sign In</Link>
+          <h1 className="text-2xl font-black text-dark mb-2">{t('cart.signInTitle')}</h1>
+          <p className="text-muted mb-6">{t('cart.signInDesc')}</p>
+          <Link href="/auth/login?redirect=/cart" className="btn-teal">{t('auth.submitLogin')}</Link>
         </div>
       </div>
     );
@@ -86,9 +94,9 @@ export default function CartPage() {
           <div className="w-20 h-20 rounded-2xl bg-teal-wash border-2 border-teal-border flex items-center justify-center mx-auto mb-5">
             <ShoppingCart size={32} className="text-muted" />
           </div>
-          <h1 className="text-2xl font-black text-dark mb-2">Your cart is empty</h1>
-          <p className="text-muted mb-6">Browse our catalog and add parts to your cart.</p>
-          <Link href="/parts" className="btn-teal">Browse Parts</Link>
+          <h1 className="text-2xl font-black text-dark mb-2">{t('cart.empty')}</h1>
+          <p className="text-muted mb-6">{t('cart.emptyDesc')}</p>
+          <Link href="/parts" className="btn-teal">{t('cart.browseParts')}</Link>
         </div>
       </div>
     );
@@ -103,8 +111,8 @@ export default function CartPage() {
             <ArrowLeft size={18} />
           </Link>
           <div>
-            <h1 className="text-2xl font-black text-dark">Shopping Cart</h1>
-            <p className="text-muted text-sm">{count} {count === 1 ? 'item' : 'items'}</p>
+            <h1 className="text-2xl font-black text-dark">{t('cart.shoppingCart')}</h1>
+            <p className="text-muted text-sm">{count} {count === 1 ? t('cart.itemSingular') : t('cart.itemPlural')}</p>
           </div>
         </div>
 
@@ -130,7 +138,7 @@ export default function CartPage() {
                         <h3 className="font-black text-dark text-sm leading-tight mb-0.5">{part.name}</h3>
                         <p className="text-xs text-muted">{part.shop?.name}</p>
                         <span className={`inline-block mt-1 text-xs font-bold px-2 py-0.5 rounded-full ${part.condition === 'new' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                          {part.condition === 'new' ? 'New' : 'Used'}
+                          {part.condition === 'new' ? t('product.new') : t('product.used')}
                         </span>
                       </div>
                       <button onClick={() => removeFromCart(item.id)} className="p-1.5 text-muted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
@@ -149,7 +157,7 @@ export default function CartPage() {
                       </div>
                       <div className="text-right">
                         <div className="text-lg font-black text-dark">₾{(Number(part.price || 0) * item.quantity).toLocaleString()}</div>
-                        {item.quantity > 1 && <div className="text-xs text-muted">₾{Number(part.price || 0).toLocaleString()} each</div>}
+                        {item.quantity > 1 && <div className="text-xs text-muted">₾{Number(part.price || 0).toLocaleString()} {t('cart.each')}</div>}
                       </div>
                     </div>
                   </div>
@@ -158,50 +166,50 @@ export default function CartPage() {
             })}
 
             <button onClick={() => clearCart()} className="text-sm text-muted hover:text-red-500 transition-colors flex items-center gap-1.5 mt-2">
-              <Trash2 size={13} /> Clear all items
+              <Trash2 size={13} /> {t('cart.clearAll')}
             </button>
           </div>
 
           {/* Order summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl border border-teal-border p-5 card-shadow sticky top-24">
-              <h2 className="font-black text-dark text-lg mb-4">Order Summary</h2>
+              <h2 className="font-black text-dark text-lg mb-4">{t('cart.orderSummary')}</h2>
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted">Subtotal ({count} items)</span>
+                  <span className="text-muted">{t('cart.subtotalItems')} ({count} {count === 1 ? t('cart.itemSingular') : t('cart.itemPlural')})</span>
                   <span className="font-bold text-dark">₾{total.toLocaleString()}</span>
                 </div>
                 <div className="border-t border-teal-border pt-3 flex justify-between">
-                  <span className="font-black text-dark">Total</span>
+                  <span className="font-black text-dark">{t('cart.total')}</span>
                   <span className="font-black text-dark text-xl">₾{total.toLocaleString()}</span>
                 </div>
               </div>
 
               {!checkoutOpen ? (
                 <button onClick={() => setCheckoutOpen(true)} className="btn-primary w-full justify-center py-3.5">
-                  <CreditCard size={16} /> Proceed to Checkout
+                  <CreditCard size={16} /> {t('cart.proceedToCheckout')}
                 </button>
               ) : (
                 <div className="space-y-3">
-                  <h3 className="font-black text-dark text-sm uppercase tracking-wider">Delivery Details</h3>
+                  <h3 className="font-black text-dark text-sm uppercase tracking-wider">{t('cart.deliveryDetails')}</h3>
                   <div className="input-wrap">
                     <span className="input-icon"><Phone size={13} /></span>
-                    <input value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="Phone number *" />
+                    <input value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('cart.phonePlaceholder')} />
                   </div>
                   <div className="input-wrap">
                     <span className="input-icon"><MapPin size={13} /></span>
-                    <input value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="Delivery address *" />
+                    <input value={form.address} onChange={(e) => set('address', e.target.value)} placeholder={t('cart.addressPlaceholder')} />
                   </div>
                   <div className="input-wrap">
                     <select value={form.city} onChange={(e) => set('city', e.target.value)} className="bg-white appearance-none">
-                      <option value="">Select city *</option>
+                      <option value="">{t('cart.selectCityPlaceholder')}</option>
                       {CITIES.map((c) => <option key={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="field-label">Payment Method</label>
+                    <label className="field-label">{t('cart.paymentMethod')}</label>
                     <div className="flex gap-2">
-                      {[{ v: 'cash', l: 'Cash on Delivery' }, { v: 'card', l: 'Card' }, { v: 'transfer', l: 'Bank Transfer' }].map(({ v, l }) => (
+                      {paymentOptions.map(({ v, l }) => (
                         <button key={v} onClick={() => set('payment', v)}
                           className={`flex-1 py-2 rounded-xl border-2 text-xs font-bold transition-all ${form.payment === v ? 'bg-teal border-teal text-white' : 'border-teal-border text-muted hover:border-teal'}`}>
                           {l}
@@ -209,27 +217,27 @@ export default function CartPage() {
                       ))}
                     </div>
                   </div>
-                  <textarea value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Notes (optional)" rows={2}
+                  <textarea value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('cart.notesPlaceholder')} rows={2}
                     className="input-base text-sm resize-none" />
                   {error && <p className="text-sm text-red-500 font-semibold">{error}</p>}
                   <button onClick={handleOrder} disabled={!form.phone || !form.address || !form.city || submitting}
                     className="btn-primary w-full justify-center py-3.5 disabled:opacity-50">
                     {submitting
                       ? <span className="w-5 h-5 border-2 border-dark/20 border-t-dark rounded-full animate-spin" />
-                      : `Place Order — ₾${total.toLocaleString()}`}
+                      : `${t('cart.placeOrder')} — ₾${total.toLocaleString()}`}
                   </button>
                   <button onClick={() => setCheckoutOpen(false)} className="w-full text-center text-xs text-muted hover:text-dark transition-colors">
-                    Cancel
+                    {t('cart.cancel')}
                   </button>
                 </div>
               )}
 
               <div className="mt-5 pt-4 border-t border-teal-border">
                 <div className="flex items-center gap-2 text-xs text-muted mb-2">
-                  <Check size={12} className="text-teal" /> Verified sellers only
+                  <Check size={12} className="text-teal" /> {t('cart.verifiedSellersOnly')}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted">
-                  <Check size={12} className="text-teal" /> Payment held until you confirm delivery
+                  <Check size={12} className="text-teal" /> {t('cart.paymentHeld')}
                 </div>
               </div>
             </div>
