@@ -1,23 +1,11 @@
-import Link from "next/link";
-import {
-  ArrowRight,
-  Shield,
-  Clock,
-  Star,
-  Truck,
-  ChevronRight,
-  TrendingUp,
-  Users,
-  Zap,
-  Search,
-  CheckCircle,
-} from "lucide-react";
-import SearchForm from "@/components/SearchForm";
-import ProductCard from "@/components/ProductCard";
-import ShopCard from "@/components/ShopCard";
-import LiveActivityFeed from "@/components/LiveActivityFeed";
-import { partsApi, shopsApi } from "@/lib/api";
-import { toProductCard, toShopCard } from "@/lib/mappers";
+import Link from 'next/link';
+import { ArrowRight, Shield, Clock, Star, Truck, ChevronRight, TrendingUp, Users, Zap, Search, CheckCircle } from 'lucide-react';
+import SearchForm from '@/components/SearchForm';
+import ProductCard from '@/components/ProductCard';
+import ShopCard from '@/components/ShopCard';
+import LiveActivityFeed from '@/components/LiveActivityFeed';
+import { partsApi, shopsApi } from '@/lib/api';
+import { toProductCard, toShopCard } from '@/lib/mappers';
 
 const categories = [
   { name: 'Engine Parts', icon: '⚙️' },
