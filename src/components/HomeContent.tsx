@@ -247,21 +247,18 @@ export default function HomeContent({
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-16 gradient-teal relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-teal-light opacity-10 blur-3xl" />
-        </div>
+      <section className="py-16 bg-screen relative overflow-hidden">
         <div className="relative max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl lg:text-4xl font-black text-white mb-4">{t('home.ctaTitle')}</h2>
-          <p className="text-white/75 mb-8 text-lg">{t('home.ctaDesc')}</p>
+          <h2 className="text-3xl lg:text-4xl font-black text-forest-green mb-4">{t('home.ctaTitle')}</h2>
+          <p className="text-forest-green/70 mb-8 text-lg">{t('home.ctaDesc')}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/request" className="btn-primary text-base px-8 py-4">
+            <Link href="/request" className="btn-teal text-base px-8 py-4">
               <Search size={18} />
               {t('home.ctaSubmit')}
             </Link>
             <Link
               href="/shops"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white border-2 border-white/30 rounded-lg hover:bg-white/10 hover:border-white/60 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-forest-green border-2 border-forest-green/30 rounded-full hover:bg-forest-green/10 hover:border-forest-green/60 transition-all"
             >
               {t('home.ctaBrowse')} <ArrowRight size={16} />
             </Link>

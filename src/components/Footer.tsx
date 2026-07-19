@@ -20,15 +20,15 @@ export default function Footer() {
   if (pathname?.startsWith('/auth/register')) return null;
 
   return (
-    <footer style={{ background: 'var(--color-forest-green)' }} className="text-white">
+    <footer style={{ background: 'var(--color-dark-charcoal)' }} className="text-white">
       <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
 
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-teal flex items-center justify-center">
-                <Car size={18} className="text-white" />
+              <div className="w-9 h-9 rounded-xl bg-bright-green flex items-center justify-center">
+                <Car size={18} className="text-forest-green" />
               </div>
               <span className="text-xl font-black tracking-tight">
                 partz<span className="text-white/90">.ge</span>
