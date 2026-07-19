@@ -95,7 +95,9 @@ export default function Navbar() {
   const isSeller = currentUser?.role === "seller";
 
   const LangSwitcher = ({ compact = false }: { compact?: boolean }) => (
-    <div className={`flex items-center rounded-full border border-teal-border bg-teal-wash p-0.5 ${compact ? "" : ""}`}>
+    <div
+      className={`flex items-center rounded-full border border-teal-border bg-teal-wash p-0.5 ${compact ? "" : ""}`}
+    >
       {(["ka", "en"] as const).map((l) => (
         <button
           key={l}
@@ -240,7 +242,9 @@ export default function Navbar() {
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-dark hover:bg-teal-wash transition-colors"
                       >
                         <LayoutDashboard size={15} className="text-teal" />
-                        <span className="font-semibold">{t("nav.dashboard")}</span>
+                        <span className="font-semibold">
+                          {t("nav.dashboard")}
+                        </span>
                       </Link>
                       {isSeller && (
                         <Link
@@ -249,7 +253,9 @@ export default function Navbar() {
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-dark hover:bg-teal-wash transition-colors"
                         >
                           <Store size={15} className="text-teal" />
-                          <span className="font-semibold">{t("nav.sellerPanel")}</span>
+                          <span className="font-semibold">
+                            {t("nav.sellerPanel")}
+                          </span>
                         </Link>
                       )}
                       <div className="border-t border-teal-border my-1" />
@@ -258,7 +264,9 @@ export default function Navbar() {
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
                       >
                         <LogOut size={15} />
-                        <span className="font-semibold">{t("nav.signOut")}</span>
+                        <span className="font-semibold">
+                          {t("nav.signOut")}
+                        </span>
                       </button>
                     </div>
                   </>
@@ -275,7 +283,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="px-5 py-2 text-sm font-bold text-white bg-purple rounded-full hover:bg-purple-dark transition-colors"
+                  className="px-5 py-2 text-sm font-bold text-purple-dark bg-bright-green rounded-full transition-colors"
                 >
                   {t("nav.register")}
                 </Link>

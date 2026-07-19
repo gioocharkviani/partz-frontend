@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 :root {
-  /* ── Palette swatches ── */
   --color-bright-yellow: #ffeb69;
   --color-bright-orange: #ffc091;
   --color-dark-purple: #260a2f;
@@ -98,8 +97,6 @@
   --color-dark-soft: var(--color-content-link-hover);
   --color-muted: #52624a;
   --color-subtle: #8b9683;
-
-  /* ── Direct swatch utilities (bg-forest-green, text-bright-green, etc.) ── */
   --color-forest-green: #163300;
   --color-bright-green: #9fe870;
   --color-dark-purple: #260a2f;
@@ -108,11 +105,16 @@
   --color-bright-blue: #a0e1e1;
   --color-bright-pink: #ffd7ef;
 
-  --font-sans: var(--font-latin), var(--font-georgian), "Segoe UI", system-ui, sans-serif;
+  --font-sans:
+    var(--font-latin), var(--font-georgian), "Segoe UI", system-ui, sans-serif;
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -157,8 +159,14 @@ body {
     background: var(--color-background-neutral);
   }
 
-  .card-shadow { box-shadow: 0 2px 16px rgba(22, 51, 0, 0.08); }
-  .card-shadow-hover { transition: box-shadow 0.25s ease, transform 0.25s ease; }
+  .card-shadow {
+    box-shadow: 0 2px 16px rgba(22, 51, 0, 0.08);
+  }
+  .card-shadow-hover {
+    transition:
+      box-shadow 0.25s ease,
+      transform 0.25s ease;
+  }
   .card-shadow-hover:hover {
     box-shadow: 0 8px 32px rgba(22, 51, 0, 0.14);
     transform: translateY(-3px);
@@ -185,14 +193,18 @@ body {
     background: var(--color-white);
     color: var(--color-content-primary);
     font-size: 0.9375rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
     outline: none;
   }
   .input-base:focus {
     border-color: var(--color-teal);
     box-shadow: 0 0 0 3px rgba(22, 51, 0, 0.12);
   }
-  .input-base::placeholder { color: var(--color-subtle); }
+  .input-base::placeholder {
+    color: var(--color-subtle);
+  }
 
   .input-wrap {
     display: flex;
@@ -200,7 +212,9 @@ body {
     border: 1.5px solid var(--color-cream-dark);
     border-radius: 0.625rem;
     background: var(--color-white);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
   }
   .input-wrap:focus-within {
     border-color: var(--color-teal);
@@ -225,7 +239,9 @@ body {
     font-size: 0.9375rem;
     border-radius: 0.625rem;
   }
-  .input-wrap input::placeholder { color: var(--color-subtle); }
+  .input-wrap input::placeholder {
+    color: var(--color-subtle);
+  }
   .input-wrap .input-end {
     padding-right: 0.75rem;
     color: var(--color-subtle);
@@ -248,7 +264,10 @@ body {
     border-radius: var(--radius-full, 9999px);
     border: none;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s,
+      background 0.2s;
     text-decoration: none;
   }
   .btn-primary:hover {
@@ -293,7 +312,10 @@ body {
     border-radius: var(--radius-full, 9999px);
     border: none;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s,
+      background 0.2s;
     text-decoration: none;
   }
   .btn-teal:hover {
@@ -318,7 +340,15 @@ body {
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.animate-fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease forwards;
+}
