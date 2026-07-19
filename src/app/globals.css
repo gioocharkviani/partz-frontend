@@ -31,7 +31,7 @@
   --color-muted: #888c94;
   --color-subtle: #a8abb2;
 
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: var(--font-latin), var(--font-georgian), "Segoe UI", system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
