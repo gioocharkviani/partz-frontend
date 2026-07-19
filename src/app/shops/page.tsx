@@ -98,7 +98,7 @@ export default function ShopsPage() {
             <div className="mt-4 pt-4 border-t border-teal-border flex flex-wrap items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <div onClick={() => setVerifiedOnly(!verifiedOnly)}
-                  className={`w-10 h-6 rounded-full transition-colors ${verifiedOnly ? 'bg-teal' : 'bg-[#e2e8f0]'} relative cursor-pointer`}>
+                  className={`w-10 h-6 rounded-full transition-colors ${verifiedOnly ? 'bg-teal' : 'bg-cream-dark'} relative cursor-pointer`}>
                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${verifiedOnly ? 'translate-x-5' : 'translate-x-1'}`} />
                 </div>
                 <span className="text-sm font-medium text-dark">{t('shopsPage.trustedOnly')}</span>

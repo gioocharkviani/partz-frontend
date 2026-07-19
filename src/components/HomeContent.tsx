@@ -171,20 +171,20 @@ export default function HomeContent({
       <LiveActivityFeed />
 
       {/* ── HOW IT WORKS ── */}
-      <section className="py-14 bg-white">
+      <section className="py-14 bg-screen">
         <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-11">
-            <span className="section-label">{t('home.howItWorks')}</span>
-            <h2 className="text-2xl font-black text-dark">{t('home.howTitle')}</h2>
-            <p className="text-muted mt-2 max-w-xl mx-auto text-sm">{t('home.howDesc')}</p>
+            <span className="inline-block px-3.5 py-1 bg-white/70 text-teal-dark font-bold text-xs tracking-widest uppercase rounded-full mb-3 border border-forest-green/15">{t('home.howItWorks')}</span>
+            <h2 className="text-2xl font-black text-forest-green">{t('home.howTitle')}</h2>
+            <p className="text-forest-green/70 mt-2 max-w-xl mx-auto text-sm">{t('home.howDesc')}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {steps.map((item, i) => (
-              <div key={i} className="bg-white rounded-2xl p-7 card-shadow border border-teal-border text-center hover:border-teal transition-colors">
+              <div key={i} className="bg-white rounded-2xl p-7 shadow-lg text-center">
                 <div className={`w-14 h-14 rounded-2xl ${item.bg} flex items-center justify-center mx-auto mb-5`}>
                   <span className={`text-xl font-black ${item.textColor}`}>{item.step}</span>
                 </div>
-                <h3 className="text-lg font-bold text-dark mb-3">{item.title}</h3>
+                <h3 className="text-lg font-bold text-forest-green mb-3">{item.title}</h3>
                 <p className="text-sm text-muted leading-relaxed">{item.desc}</p>
               </div>
             ))}
