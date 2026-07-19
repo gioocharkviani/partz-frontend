@@ -46,7 +46,7 @@
   --color-background-screen-hover: rgba(255, 255, 255, 0.4);
   --color-background-screen-active: rgba(255, 255, 255, 0.4);
   --color-background-elevated: rgba(255, 255, 255, 0);
-  --color-background-neutral: rgba(255, 255, 255, 0.30196);
+  --color-background-neutral: rgba(22, 51, 0, 0.07843);
   --color-background-neutral-hover: rgba(255, 255, 255, 0.4);
   --color-background-neutral-active: rgba(255, 255, 255, 0.50196);
   --color-background-overlay: rgba(255, 255, 255, 0);
@@ -152,6 +152,9 @@ body {
   }
   .bg-screen {
     background: var(--color-background-screen);
+  }
+  .bg-neutral-wash {
+    background: var(--color-background-neutral);
   }
 
   .card-shadow { box-shadow: 0 2px 16px rgba(22, 51, 0, 0.08); }

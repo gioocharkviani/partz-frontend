@@ -247,7 +247,7 @@ export default function HomeContent({
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-16 bg-screen relative overflow-hidden">
+      <section className="py-16 bg-neutral-wash relative overflow-hidden">
         <div className="relative max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl lg:text-4xl font-black text-forest-green mb-4">{t('home.ctaTitle')}</h2>
           <p className="text-forest-green/70 mb-8 text-lg">{t('home.ctaDesc')}</p>
