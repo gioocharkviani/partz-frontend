@@ -1,86 +1,103 @@
 @import "tailwindcss";
 
 :root {
-  /* ── Design tokens ── */
-  --color-content-primary: #37517e;
-  --color-content-secondary: #5d7079;
-  --color-content-tertiary: #768e9c;
-  --color-content-accent: #0097c7;
-  --color-content-accent-hover: #0084b3;
-  --color-content-accent-active: #0077a5;
-  --color-content-positive: #008026;
-  --color-content-positive-hover: #006d13;
-  --color-content-positive-active: #006002;
-  --color-content-negative: #cf2929;
-  --color-content-negative-hover: #b80419;
-  --color-content-negative-active: #a7000d;
-  --color-content-warning: #9a6500;
-  --color-content-warning-hover: #855400;
-  --color-content-warning-active: #764700;
-  --color-interactive-accent: #00a2dd;
-  --color-interactive-accent-hover: #008fc9;
-  --color-interactive-accent-active: #0081ba;
-  --color-interactive-positive: #2ead4b;
-  --color-interactive-positive-hover: #069939;
-  --color-interactive-positive-active: #008b2b;
-  --color-interactive-negative: #e74848;
-  --color-interactive-negative-hover: #d03238;
-  --color-interactive-negative-active: #bf1e2c;
-  --color-interactive-warning: #df8700;
-  --color-interactive-warning-hover: #c97500;
-  --color-interactive-warning-active: #b86700;
-  --color-interactive-secondary: #c9cbce;
-  --color-interactive-secondary-hover: #b5b7ba;
-  --color-interactive-secondary-active: #a7a9ab;
-  --color-background-screen: #ffffff;
-  --color-background-elevated: #ffffff;
-  --color-background-neutral: rgba(134, 167, 189, 0.10196);
-  --color-background-accent: rgba(56, 200, 255, 0.10196);
-  --color-background-positive: rgba(54, 199, 151, 0.10196);
-  --color-background-negative: rgba(255, 135, 135, 0.10196);
-  --color-background-warning: rgba(255, 172, 0, 0.10196);
-  --color-background-overlay: rgba(0, 0, 0, 0.10196);
-  --color-border-neutral: rgba(0, 0, 0, 0.10196);
-  --color-border-overlay: rgba(0, 0, 0, 0.10196);
-  --color-core-contrast: #000000;
+  /* ── Palette swatches ── */
+  --color-bright-yellow: #ffeb69;
+  --color-bright-orange: #ffc091;
+  --color-dark-purple: #260a2f;
+  --color-dark-gold: #3a341c;
+  --color-bright-blue: #a0e1e1;
+  --color-dark-charcoal: #21231d;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-bright-green: #9fe870;
+  --color-forest-green: #163300;
+  --color-bright-pink: #ffd7ef;
+  --color-dark-maroon: #320707;
 
-  /* ── Brand: bright green + forest green ── */
-  --color-brand-bright: #9fe870;
-  --color-brand-mid: #1f9d4c;
-  --color-brand-mid-dark: #16802e;
-  --color-brand-forest: #163300;
+  /* ── Semantic tokens ── */
+  --color-content-primary: #163300;
+  --color-content-secondary: #163300;
+  --color-content-tertiary: rgba(255, 255, 255, 0);
+  --color-content-link: #163300;
+  --color-content-link-hover: #0d1f00;
+  --color-content-link-active: #0e0f0c;
+  --color-interactive-primary: #163300;
+  --color-interactive-primary-hover: #0d1f00;
+  --color-interactive-primary-active: #0e0f0c;
+  --color-interactive-secondary: rgba(255, 255, 255, 0);
+  --color-interactive-secondary-hover: rgba(255, 255, 255, 0);
+  --color-interactive-secondary-active: rgba(255, 255, 255, 0);
+  --color-interactive-accent: #163300;
+  --color-interactive-accent-hover: #0d1f00;
+  --color-interactive-accent-active: #0e0f0c;
+  --color-interactive-control: #9fe870;
+  --color-interactive-control-hover: #bbef9a;
+  --color-interactive-control-active: #d9f6c6;
+  --color-interactive-contrast: #9fe870;
+  --color-interactive-contrast-hover: #cdffad;
+  --color-interactive-contrast-active: #ecffe0;
+  --color-interactive-neutral: rgba(22, 51, 0, 0.2);
+  --color-interactive-neutral-hover: rgba(13, 31, 0, 0.2);
+  --color-interactive-neutral-active: rgba(14, 15, 12, 0.2);
+  --color-border-neutral: rgba(22, 51, 0, 0.12157);
+  --color-border-overlay: rgba(255, 255, 255, 0);
+  --color-background-screen: #9fe870;
+  --color-background-screen-hover: rgba(255, 255, 255, 0.4);
+  --color-background-screen-active: rgba(255, 255, 255, 0.4);
+  --color-background-elevated: rgba(255, 255, 255, 0);
+  --color-background-neutral: rgba(255, 255, 255, 0.30196);
+  --color-background-neutral-hover: rgba(255, 255, 255, 0.4);
+  --color-background-neutral-active: rgba(255, 255, 255, 0.50196);
+  --color-background-overlay: rgba(255, 255, 255, 0);
+  --color-sentiment-negative: #cb272f;
+  --color-sentiment-negative-hover: #b8232b;
+  --color-sentiment-negative-active: #a72027;
+  --color-sentiment-negative-secondary: #fbeaea;
+  --color-sentiment-positive: #054d28;
+  --color-sentiment-positive-hover: #043a1e;
+  --color-sentiment-positive-active: #022614;
+  --color-sentiment-positive-secondary: #e2f6d5;
+  --color-sentiment-warning: #ffd11a;
+  --color-sentiment-warning-secondary: #fff7d7;
+  --color-sentiment-warning-content: #4a3b1c;
+  --color-light: #ffffff;
+  --color-dark-token: #163300;
+
+  --font-family-regular: "Inter", Helvetica, Arial, sans-serif;
+  --font-family-display: "Wise Sans", "Inter", sans-serif;
 }
 
 @theme {
-  /* ── Primary: bright/mid green ── */
-  --color-teal: var(--color-brand-mid);
-  --color-teal-dark: var(--color-brand-mid-dark);
-  --color-teal-light: var(--color-brand-bright);
+  /* ── Primary: forest green interactive, bright green control ── */
+  --color-teal: var(--color-interactive-primary);
+  --color-teal-dark: var(--color-interactive-primary-hover);
+  --color-teal-light: var(--color-interactive-control);
   --color-teal-wash: rgba(159, 232, 112, 0.16);
-  --color-teal-border: rgba(31, 157, 76, 0.28);
+  --color-teal-border: var(--color-border-neutral);
 
-  /* ── Secondary: forest green ── */
-  --color-purple: var(--color-brand-forest);
-  --color-purple-dark: #0e2200;
-  --color-purple-light: #3f5c2e;
-  --color-purple-wash: rgba(22, 51, 0, 0.08);
-  --color-purple-border: rgba(22, 51, 0, 0.22);
+  /* ── Secondary: deep plum accent from the swatch set ── */
+  --color-purple: var(--color-dark-purple);
+  --color-purple-dark: #1a0620;
+  --color-purple-light: #4a1f57;
+  --color-purple-wash: rgba(38, 10, 47, 0.08);
+  --color-purple-border: rgba(38, 10, 47, 0.2);
 
-  /* ── CTA: mapped to interactive-warning — use sparingly, primary action only ── */
-  --color-yellow: var(--color-interactive-warning);
-  --color-amber: var(--color-interactive-warning-hover);
-  --color-amber-light: var(--color-background-warning);
+  /* ── CTA: sentiment warning gold — use sparingly, primary action only ── */
+  --color-yellow: var(--color-sentiment-warning);
+  --color-amber: #e0ba00;
+  --color-amber-light: var(--color-sentiment-warning-secondary);
 
-  --color-cream: #f7f9fa;
-  --color-cream-dark: #e7ecef;
-  --color-cream-darker: #d3dbe0;
-  --color-light: #f7f9fa;
+  --color-cream: #f5faf0;
+  --color-cream-dark: #e3f0d8;
+  --color-cream-darker: #c9e4b4;
+  --color-light: #f5faf0;
   --color-border: var(--color-border-neutral);
 
-  --color-dark: #101010;
-  --color-dark-soft: #262626;
-  --color-muted: var(--color-content-secondary);
-  --color-subtle: var(--color-content-tertiary);
+  --color-dark: var(--color-content-primary);
+  --color-dark-soft: var(--color-content-link-hover);
+  --color-muted: #52624a;
+  --color-subtle: #8b9683;
 
   --font-sans: var(--font-latin), var(--font-georgian), "Segoe UI", system-ui, sans-serif;
 }
