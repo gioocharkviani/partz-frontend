@@ -1,35 +1,80 @@
 @import "tailwindcss";
 
+:root {
+  /* ── Design tokens ── */
+  --color-content-primary: #37517e;
+  --color-content-secondary: #5d7079;
+  --color-content-tertiary: #768e9c;
+  --color-content-accent: #0097c7;
+  --color-content-accent-hover: #0084b3;
+  --color-content-accent-active: #0077a5;
+  --color-content-positive: #008026;
+  --color-content-positive-hover: #006d13;
+  --color-content-positive-active: #006002;
+  --color-content-negative: #cf2929;
+  --color-content-negative-hover: #b80419;
+  --color-content-negative-active: #a7000d;
+  --color-content-warning: #9a6500;
+  --color-content-warning-hover: #855400;
+  --color-content-warning-active: #764700;
+  --color-interactive-accent: #00a2dd;
+  --color-interactive-accent-hover: #008fc9;
+  --color-interactive-accent-active: #0081ba;
+  --color-interactive-positive: #2ead4b;
+  --color-interactive-positive-hover: #069939;
+  --color-interactive-positive-active: #008b2b;
+  --color-interactive-negative: #e74848;
+  --color-interactive-negative-hover: #d03238;
+  --color-interactive-negative-active: #bf1e2c;
+  --color-interactive-warning: #df8700;
+  --color-interactive-warning-hover: #c97500;
+  --color-interactive-warning-active: #b86700;
+  --color-interactive-secondary: #c9cbce;
+  --color-interactive-secondary-hover: #b5b7ba;
+  --color-interactive-secondary-active: #a7a9ab;
+  --color-background-screen: #ffffff;
+  --color-background-elevated: #ffffff;
+  --color-background-neutral: rgba(134, 167, 189, 0.10196);
+  --color-background-accent: rgba(56, 200, 255, 0.10196);
+  --color-background-positive: rgba(54, 199, 151, 0.10196);
+  --color-background-negative: rgba(255, 135, 135, 0.10196);
+  --color-background-warning: rgba(255, 172, 0, 0.10196);
+  --color-background-overlay: rgba(0, 0, 0, 0.10196);
+  --color-border-neutral: rgba(0, 0, 0, 0.10196);
+  --color-border-overlay: rgba(0, 0, 0, 0.10196);
+  --color-core-contrast: #000000;
+}
+
 @theme {
-  /* ── Primary: Blue ── */
-  --color-teal: #003ca6;
-  --color-teal-dark: #002d80;
-  --color-teal-light: #4d7fd6;
-  --color-teal-wash: #e8eefa;
-  --color-teal-border: #b9cced;
+  /* ── Primary: mapped to interactive-accent ── */
+  --color-teal: var(--color-interactive-accent);
+  --color-teal-dark: var(--color-interactive-accent-hover);
+  --color-teal-light: var(--color-content-accent);
+  --color-teal-wash: var(--color-background-accent);
+  --color-teal-border: rgba(56, 200, 255, 0.28);
 
-  /* ── Secondary: Wise-inspired green (less-critical interactive elements) ── */
-  --color-purple: #0e9f6e;
-  --color-purple-dark: #0b7a54;
-  --color-purple-light: #4cc393;
-  --color-purple-wash: #e3f7ef;
-  --color-purple-border: #b8e8d2;
+  /* ── Secondary: mapped to interactive-positive ── */
+  --color-purple: var(--color-interactive-positive);
+  --color-purple-dark: var(--color-interactive-positive-hover);
+  --color-purple-light: var(--color-content-positive);
+  --color-purple-wash: var(--color-background-positive);
+  --color-purple-border: rgba(54, 199, 151, 0.3);
 
-  /* ── CTA: Gold — use sparingly, primary action only ── */
-  --color-yellow: #f4b52c;
-  --color-amber: #d99a12;
-  --color-amber-light: #fdf0d9;
+  /* ── CTA: mapped to interactive-warning — use sparingly, primary action only ── */
+  --color-yellow: var(--color-interactive-warning);
+  --color-amber: var(--color-interactive-warning-hover);
+  --color-amber-light: var(--color-background-warning);
 
-  --color-cream: #f8fafc;
-  --color-cream-dark: #e2e8f0;
-  --color-cream-darker: #cbd5e1;
-  --color-light: #f8fafc;
-  --color-border: #e2e8f0;
+  --color-cream: #f7f9fa;
+  --color-cream-dark: #e7ecef;
+  --color-cream-darker: #d3dbe0;
+  --color-light: #f7f9fa;
+  --color-border: var(--color-border-neutral);
 
-  --color-dark: #101828;
-  --color-dark-soft: #1e293b;
-  --color-muted: #888c94;
-  --color-subtle: #a8abb2;
+  --color-dark: var(--color-content-primary);
+  --color-dark-soft: #26344f;
+  --color-muted: var(--color-content-secondary);
+  --color-subtle: var(--color-content-tertiary);
 
   --font-sans: var(--font-latin), var(--font-georgian), "Segoe UI", system-ui, sans-serif;
 }
