@@ -43,22 +43,28 @@
   --color-border-neutral: rgba(0, 0, 0, 0.10196);
   --color-border-overlay: rgba(0, 0, 0, 0.10196);
   --color-core-contrast: #000000;
+
+  /* ── Brand: bright green + forest green ── */
+  --color-brand-bright: #9fe870;
+  --color-brand-mid: #1f9d4c;
+  --color-brand-mid-dark: #16802e;
+  --color-brand-forest: #163300;
 }
 
 @theme {
-  /* ── Primary: mapped to interactive-accent ── */
-  --color-teal: var(--color-interactive-accent);
-  --color-teal-dark: var(--color-interactive-accent-hover);
-  --color-teal-light: var(--color-content-accent);
-  --color-teal-wash: var(--color-background-accent);
-  --color-teal-border: rgba(56, 200, 255, 0.28);
+  /* ── Primary: bright/mid green ── */
+  --color-teal: var(--color-brand-mid);
+  --color-teal-dark: var(--color-brand-mid-dark);
+  --color-teal-light: var(--color-brand-bright);
+  --color-teal-wash: rgba(159, 232, 112, 0.16);
+  --color-teal-border: rgba(31, 157, 76, 0.28);
 
-  /* ── Secondary: mapped to interactive-positive ── */
-  --color-purple: var(--color-interactive-positive);
-  --color-purple-dark: var(--color-interactive-positive-hover);
-  --color-purple-light: var(--color-content-positive);
-  --color-purple-wash: var(--color-background-positive);
-  --color-purple-border: rgba(54, 199, 151, 0.3);
+  /* ── Secondary: forest green ── */
+  --color-purple: var(--color-brand-forest);
+  --color-purple-dark: #0e2200;
+  --color-purple-light: #3f5c2e;
+  --color-purple-wash: rgba(22, 51, 0, 0.08);
+  --color-purple-border: rgba(22, 51, 0, 0.22);
 
   /* ── CTA: mapped to interactive-warning — use sparingly, primary action only ── */
   --color-yellow: var(--color-interactive-warning);
@@ -71,8 +77,8 @@
   --color-light: #f7f9fa;
   --color-border: var(--color-border-neutral);
 
-  --color-dark: var(--color-content-primary);
-  --color-dark-soft: #26344f;
+  --color-dark: #101010;
+  --color-dark-soft: #262626;
   --color-muted: var(--color-content-secondary);
   --color-subtle: var(--color-content-tertiary);
 
