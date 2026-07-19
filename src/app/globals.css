@@ -8,12 +8,12 @@
   --color-teal-wash: #e8eefa;
   --color-teal-border: #b9cced;
 
-  /* ── Secondary: Purple (less-critical interactive elements) ── */
-  --color-purple: #8a38f5;
-  --color-purple-dark: #6c1fd1;
-  --color-purple-light: #b482f9;
-  --color-purple-wash: #f1e7fd;
-  --color-purple-border: #d9c0f9;
+  /* ── Secondary: Wise-inspired green (less-critical interactive elements) ── */
+  --color-purple: #0e9f6e;
+  --color-purple-dark: #0b7a54;
+  --color-purple-light: #4cc393;
+  --color-purple-wash: #e3f7ef;
+  --color-purple-border: #b8e8d2;
 
   /* ── CTA: Gold — use sparingly, primary action only ── */
   --color-yellow: #f4b52c;

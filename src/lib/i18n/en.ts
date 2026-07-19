@@ -90,8 +90,17 @@ const en: Dictionary = {
   registerPage: {
     customerHeading: "Customer",
     customerDesc: "Search for car parts and send requests to verified sellers.",
+    customerBenefit1: "Free to register",
+    customerBenefit2: "Get offers from multiple sellers",
+    customerBenefit3: "Payment protected until delivery is confirmed",
+    customerCta: "Register as Customer",
     sellerHeading: "Seller",
     sellerDesc: "Open a shop instantly and receive requests from buyers.",
+    sellerBenefit1: "Your shop is created automatically",
+    sellerBenefit2: "Targeted requests for your brands",
+    sellerBenefit3: "Paid securely when an order completes",
+    sellerCta: "Register as Seller",
+    changeType: "Change account type",
     or: "or",
   },
   heroSearch: {
