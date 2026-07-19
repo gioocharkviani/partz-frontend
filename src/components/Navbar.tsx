@@ -110,6 +110,8 @@ export default function Navbar() {
     </div>
   );
 
+  if (pathname?.startsWith("/auth/register")) return null;
+
   return (
     <header className="sticky top-0 z-50 bg-white">
       <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 py-3">

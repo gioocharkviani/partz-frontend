@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Car, Phone, Mail, MapPin, Globe2, MessageCircle, Rss } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function Footer() {
   const { t } = useLanguage();
+  const pathname = usePathname();
 
   const platformLinks = [
     { href: '/shops', label: t('footer.browseShops') },
@@ -14,6 +16,8 @@ export default function Footer() {
     { href: '/auth/register?role=shop', label: t('footer.openShop') },
     { href: '/auth/register?role=seller', label: t('footer.becomeSeller') },
   ];
+
+  if (pathname?.startsWith('/auth/register')) return null;
 
   return (
     <footer style={{ background: '#0f172a' }} className="text-white">

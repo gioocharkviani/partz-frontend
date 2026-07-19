@@ -87,6 +87,13 @@ const en: Dictionary = {
     ctaSubmit: "Submit Request",
     ctaBrowse: "Browse Shops",
   },
+  registerPage: {
+    customerHeading: "Customer",
+    customerDesc: "Search for car parts and send requests to verified sellers.",
+    sellerHeading: "Seller",
+    sellerDesc: "Open a shop instantly and receive requests from buyers.",
+    or: "or",
+  },
   heroSearch: {
     vinMode: "VIN Code (Auto-detect)",
     manualMode: "Choose Manually",
