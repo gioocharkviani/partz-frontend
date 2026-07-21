@@ -81,17 +81,17 @@ export default function Footer() {
               </li>
             </ul>
             <div className="mt-5 p-3.5 bg-white/10 rounded-xl">
-              <p className="text-xs text-white/40 mb-0.5">Working hours</p>
+              <p className="text-xs text-white/60 mb-0.5">Working hours</p>
               <p className="text-sm text-white font-semibold">Monâ€“Sat: 10:00 â€“ 19:00</p>
             </div>
           </div>
         </div>
 
         <div className="border-t border-white/15 pt-7 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/40">Â© 2025 partz.ge â€” All rights reserved.</p>
+          <p className="text-xs text-white/60">Â© 2025 partz.ge â€” All rights reserved.</p>
           <div className="flex gap-5">
             {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((item) => (
-              <Link key={item} href="#" className="text-xs text-white/40 hover:text-white/90 transition-colors">
+              <Link key={item} href="#" className="text-xs text-white/60 hover:text-white/90 transition-colors">
                 {item}
               </Link>
             ))}

@@ -7,7 +7,6 @@ import {
   Truck,
   ChevronRight,
   TrendingUp,
-  Users,
   Zap,
   Search,
   CheckCircle,
@@ -18,17 +17,6 @@ import ShopCard from "@/components/ShopCard";
 import LiveActivityFeed from "@/components/LiveActivityFeed";
 import { partsApi, shopsApi } from "@/lib/api";
 import { toProductCard, toShopCard } from "@/lib/mappers";
-
-const categories = [
-  { name: "Engine Parts", icon: "⚙️" },
-  { name: "Brakes", icon: "🛑" },
-  { name: "Suspension", icon: "🔧" },
-  { name: "Body & Exterior", icon: "🚗" },
-  { name: "Electrical", icon: "⚡" },
-  { name: "Transmission", icon: "🔩" },
-  { name: "Filters", icon: "💧" },
-  { name: "Tyres", icon: "🎯" },
-];
 
 export default async function HomePage() {
   const [parts, shops] = await Promise.all([
@@ -52,100 +40,71 @@ export default async function HomePage() {
   return (
     <>
       {/* ── HERO ── */}
-      <section className="gradient-hero relative border-b border-teal-border min-h-[640px] lg:min-h-[700px]">
+      <section className="gradient-hero relative overflow-hidden pt-16 pb-28 lg:pt-24 lg:pb-40">
         {/* Decorative blobs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-teal opacity-[0.06] blur-3xl" />
-          <div className="absolute top-1/2 -left-16 w-72 h-72 rounded-full bg-teal opacity-[0.06] blur-3xl" />
+          <div className="absolute top-1/3 -left-16 w-72 h-72 rounded-full bg-teal opacity-[0.06] blur-3xl" />
           <div className="absolute -bottom-16 right-1/3 w-64 h-64 rounded-full bg-purple opacity-[0.05] blur-3xl" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-16">
-          <div className="grid lg:grid-cols-2 gap-14 items-start">
-            {/* Left copy */}
-            <div className="lg:self-start lg:pt-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-teal text-xs font-bold uppercase tracking-wider mb-6 border border-teal-border bg-teal-wash">
-                <Zap size={11} className="fill-teal" />
-                Georgia&apos;s Car Parts Marketplace
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-teal text-xs font-bold uppercase tracking-wider mb-7 border border-teal-border bg-teal-wash">
+            <Zap size={11} className="fill-teal" />
+            Georgia&apos;s Car Parts Marketplace
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-black text-dark leading-[1.08] mb-6 tracking-tight">
+            Find the Right
+            <span className="block text-teal">Car Part,</span>
+            <span className="relative inline-block">
+              Fast.
+              <span className="absolute -bottom-1 left-0 right-0 h-1.5 bg-yellow rounded-full" />
+            </span>
+          </h1>
+
+          <p className="text-muted text-lg lg:text-xl leading-relaxed mb-9 max-w-2xl mx-auto">
+            Search by VIN or select your vehicle. Connect with verified shops
+            and sellers across Georgia. Get offers in minutes.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-6 mb-11">
+            {[
+              { icon: Shield, text: "Verified sellers" },
+              { icon: Clock, text: "Quick responses" },
+              { icon: Star, text: "Rated reviews" },
+            ].map(({ icon: Icon, text }) => (
+              <div
+                key={text}
+                className="flex items-center gap-2 text-sm text-muted"
+              >
+                <Icon size={14} className="text-teal" />
+                {text}
               </div>
+            ))}
+          </div>
 
-              <h1 className="text-4xl lg:text-5xl xl:text-[3.5rem] font-black text-dark leading-[1.1] mb-5">
-                Find the Right
-                <span className="block text-teal">Car Part,</span>
-                <span className="relative">
-                  Fast.
-                  <span className="absolute -bottom-1 left-0 w-16 h-1.5 bg-yellow rounded-full" />
-                </span>
-              </h1>
-
-              <p className="text-muted text-lg leading-relaxed mb-8 max-w-md">
-                Search by VIN or select your vehicle. Connect with verified
-                shops and sellers across Georgia. Get offers in minutes.
-              </p>
-
-              <div className="flex flex-wrap gap-5 mb-10">
-                {[
-                  { icon: Shield, text: "Verified sellers" },
-                  { icon: Clock, text: "Quick responses" },
-                  { icon: Star, text: "Rated reviews" },
-                ].map(({ icon: Icon, text }) => (
-                  <div
-                    key={text}
-                    className="flex items-center gap-2 text-sm text-muted"
-                  >
-                    <Icon size={14} className="text-teal" />
-                    {text}
-                  </div>
-                ))}
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto">
+            {stats.map(({ label, value }) => (
+              <div
+                key={label}
+                className="bg-white border border-teal-border rounded-xl p-3.5 card-shadow"
+              >
+                <div className="text-xl font-black text-teal mb-0.5">
+                  {value}
+                </div>
+                <div className="text-xs text-muted">{label}</div>
               </div>
-
-              {/* Stats row */}
-              <div className="grid grid-cols-3 gap-3">
-                {stats.map(({ label, value }) => (
-                  <div
-                    key={label}
-                    className="bg-white border border-teal-border rounded-xl p-3.5 card-shadow"
-                  >
-                    <div className="text-xl font-black text-teal mb-0.5">
-                      {value}
-                    </div>
-                    <div className="text-xs text-muted">{label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Search form */}
-            <div className="self-start">
-              <SearchForm />
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── CATEGORIES ── */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-7">
-            <span className="section-label">Browse by Category</span>
-            <h2 className="text-2xl font-black text-dark">
-              What are you looking for?
-            </h2>
-          </div>
-          <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
-            {categories.map((cat) => (
-              <Link
-                key={cat.name}
-                href={`/parts?category=${encodeURIComponent(cat.name)}`}
-                className="group bg-white border border-teal-border rounded-xl p-3 sm:p-4 text-center card-shadow card-shadow-hover hover:border-teal"
-              >
-                <div className="text-2xl sm:text-3xl mb-1.5">{cat.icon}</div>
-                <div className="text-xs font-bold text-dark group-hover:text-teal transition-colors leading-tight">
-                  {cat.name}
-                </div>
-              </Link>
-            ))}
-          </div>
+      {/* ── SEARCH ── */}
+      <section className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 lg:-mt-24 relative pb-14">
+          <SearchForm />
         </div>
       </section>
 
