@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { ShoppingCart, Store, Tag, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Product {
   id: number;
@@ -29,6 +30,7 @@ const PART_IMAGES: Record<string, string> = {
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
+  const { t } = useLanguage();
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
 
@@ -63,7 +65,7 @@ export default function ProductCard({ product }: { product: Product }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <span className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full border backdrop-blur-sm ${conditionColors[product.condition]}`}>
-          {product.condition.charAt(0).toUpperCase() + product.condition.slice(1)}
+          {t(`product.${product.condition}`)}
         </span>
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
@@ -91,7 +93,7 @@ export default function ProductCard({ product }: { product: Product }) {
             href={`/parts/${product.id}`}
             className="flex-1 text-center py-2.5 text-sm font-semibold text-dark border-2 border-teal-border rounded-lg hover:border-teal hover:text-teal transition-colors"
           >
-            View
+            {t('product.view')}
           </Link>
           <button onClick={handleAdd} disabled={adding}
             className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-teal rounded-lg hover:bg-teal-dark transition-colors disabled:opacity-60">

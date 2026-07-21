@@ -10,25 +10,12 @@ import {
 } from 'lucide-react';
 import { getUser, requestsApi, ordersApi, shopsApi, partsApi, uploadsApi, resolveUploadUrl } from '@/lib/api';
 import { useSocketEvent } from '@/lib/socket';
+import { useLanguage } from '@/context/LanguageContext';
 
 type Tab = 'requests' | 'quotes' | 'orders' | 'setup' | 'inventory';
 
-const reqStatusConfig: Record<string, { label: string; color: string; dot: string }> = {
-  open:      { label: 'New',       color: 'bg-teal/10 text-teal border-teal/20',         dot: 'bg-teal' },
-  offered:   { label: 'Quoted',    color: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
-  fulfilled: { label: 'Fulfilled', color: 'bg-teal/10 text-teal border-teal/20',         dot: 'bg-teal' },
-  closed:    { label: 'Closed',    color: 'bg-slate-50 text-slate-400 border-slate-200', dot: 'bg-slate-400' },
-};
-
-const orderStatusConfig: Record<string, { label: string; color: string }> = {
-  pending:   { label: 'Pending',   color: 'bg-yellow/15 text-dark border-yellow/25' },
-  accepted:  { label: 'Accepted',  color: 'bg-teal/10 text-teal border-teal/20' },
-  paid:      { label: 'Paid',      color: 'bg-teal/10 text-teal border-teal/20' },
-  completed: { label: 'Delivered', color: 'bg-teal/10 text-teal border-teal/20' },
-  cancelled: { label: 'Cancelled', color: 'bg-red-50 text-red-500 border-red-100' },
-};
-
 function QuoteModal({ request, onClose, onSent }: { request: any; onClose: () => void; onSent: () => void }) {
+  const { t } = useLanguage();
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [partNumber, setPartNumber] = useState('');
@@ -43,7 +30,7 @@ function QuoteModal({ request, onClose, onSent }: { request: any; onClose: () =>
     try {
       await requestsApi.makeOffer(request.id, {
         price: Number(price),
-        description: description || `Available part for ${request.brand?.name || ''} ${request.model?.name || ''}`,
+        description: description || `${t('supplierPanel.availablePartFor')} ${request.brand?.name || ''} ${request.model?.name || ''}`,
         part_number: partNumber || undefined,
         condition,
         delivery_days: deliveryDays || undefined,
@@ -51,7 +38,7 @@ function QuoteModal({ request, onClose, onSent }: { request: any; onClose: () =>
       onSent();
       onClose();
     } catch (e: any) {
-      setErr(e.message || 'Failed to send offer');
+      setErr(e.message || t('supplierPanel.quoteFailedToSend'));
     } finally {
       setSending(false);
     }
@@ -68,48 +55,48 @@ function QuoteModal({ request, onClose, onSent }: { request: any; onClose: () =>
           <button onClick={onClose} className="text-muted hover:text-dark transition-colors p-1 text-xl leading-none">×</button>
         </div>
         <div className="bg-teal-wash rounded-xl p-4 mb-5 text-sm text-muted border border-teal-border">
-          <strong className="text-dark">Customer request: </strong>{request.description}
+          <strong className="text-dark">{t('supplierPanel.customerRequestLabel')} </strong>{request.description}
         </div>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="field-label">Your Price (₾) *</label>
+              <label className="field-label">{t('supplierPanel.yourPriceLabel')}</label>
               <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
                 placeholder="0" className="input-base" min="0" />
             </div>
             <div>
-              <label className="field-label">Part Number</label>
+              <label className="field-label">{t('supplierPanel.partNumberLabel')}</label>
               <input value={partNumber} onChange={(e) => setPartNumber(e.target.value)}
-                placeholder="Optional" className="input-base" />
+                placeholder={t('supplierPanel.optionalPlaceholder')} className="input-base" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="field-label">Condition *</label>
+              <label className="field-label">{t('supplierPanel.conditionRequired')}</label>
               <div className="input-wrap">
                 <select value={condition} onChange={(e) => setCondition(e.target.value)} className="bg-white appearance-none">
-                  <option value="new">New</option>
-                  <option value="used">Used (Good)</option>
-                  <option value="refurbished">Refurbished</option>
+                  <option value="new">{t('product.new')}</option>
+                  <option value="used">{t('supplierPanel.usedGood')}</option>
+                  <option value="refurbished">{t('product.refurbished')}</option>
                 </select>
                 <span className="input-end"><ChevronDown size={13} /></span>
               </div>
             </div>
             <div>
-              <label className="field-label">Delivery (days)</label>
+              <label className="field-label">{t('supplierPanel.deliveryDaysLabel')}</label>
               <input value={deliveryDays} onChange={(e) => setDeliveryDays(e.target.value)}
-                placeholder="e.g. 1-3" className="input-base" />
+                placeholder={t('supplierPanel.deliveryDaysPlaceholder')} className="input-base" />
             </div>
           </div>
           <div>
-            <label className="field-label">Description / Note</label>
+            <label className="field-label">{t('supplierPanel.descriptionNoteLabel')}</label>
             <textarea value={description} onChange={(e) => setDescription(e.target.value)}
-              rows={2} placeholder="Compatibility, warranty, any details..." className="input-base resize-none" />
+              rows={2} placeholder={t('supplierPanel.descNotePlaceholder')} className="input-base resize-none" />
           </div>
           {err && <p className="text-sm text-red-500 font-semibold">{err}</p>}
           <button onClick={handleSend} disabled={!price || sending}
             className="btn-primary w-full py-3.5 justify-center rounded-xl disabled:opacity-50">
-            {sending ? <span className="w-5 h-5 border-2 border-dark/20 border-t-dark rounded-full animate-spin" /> : <><Send size={16} /> Send Quote</>}
+            {sending ? <span className="w-5 h-5 border-2 border-dark/20 border-t-dark rounded-full animate-spin" /> : <><Send size={16} /> {t('supplierPanel.sendQuote')}</>}
           </button>
         </div>
       </div>
@@ -119,6 +106,7 @@ function QuoteModal({ request, onClose, onSent }: { request: any; onClose: () =>
 
 /* ── Setup Tab: shop creation + specializations ── */
 function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopChange: () => void }) {
+  const { t } = useLanguage();
   const [specs, setSpecs] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [models, setModels] = useState<any[]>([]);
@@ -181,10 +169,10 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
       } else {
         await shopsApi.create(shopForm);
       }
-      setShopMsg('Saved!');
+      setShopMsg(t('supplierPanel.savedMsg'));
       onShopChange();
     } catch (err: any) {
-      setShopMsg(err.message || 'Failed');
+      setShopMsg(err.message || t('supplierPanel.failedMsg'));
     } finally {
       setSavingShop(false);
       setTimeout(() => setShopMsg(''), 3000);
@@ -209,7 +197,7 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
       setConfirmingDelete(false);
       onShopChange();
     } catch (err: any) {
-      setDeleteErr(err.message || 'Failed to delete shop');
+      setDeleteErr(err.message || t('supplierPanel.failedDeleteShop'));
     } finally {
       setDeletingShop(false);
     }
@@ -234,7 +222,7 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
       setSelBrand(''); setSelModel('');
       loadAll();
     } catch (err: any) {
-      setSpecErr(err.message || 'Failed');
+      setSpecErr(err.message || t('supplierPanel.failedMsg'));
     } finally {
       setAddingSpec(false);
     }
@@ -253,9 +241,9 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
     setSavingCats(true); setCatsMsg('');
     try {
       await shopsApi.setCategories(selectedCats);
-      setCatsMsg('Saved!');
+      setCatsMsg(t('supplierPanel.savedMsg'));
     } catch (e: any) {
-      setCatsMsg(e.message || 'Failed');
+      setCatsMsg(e.message || t('supplierPanel.failedMsg'));
     } finally {
       setSavingCats(false);
       setTimeout(() => setCatsMsg(''), 3000);
@@ -271,9 +259,9 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
             <Car size={20} className="text-white" />
           </div>
           <div>
-            <h3 className="font-black text-dark">Car Brand Specializations</h3>
+            <h3 className="font-black text-dark">{t('supplierPanel.carBrandSpecTitle')}</h3>
             <p className="text-sm text-muted mt-0.5">
-              Add the car brands you specialize in. <strong className="text-dark">Customers requesting parts for these brands will send you notifications.</strong>
+              {t('supplierPanel.carBrandSpecDescPrefix')} <strong className="text-dark">{t('supplierPanel.carBrandSpecDescStrong')}</strong>
             </p>
           </div>
         </div>
@@ -285,7 +273,7 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
               <div key={s.id}
                 className="flex items-center gap-2 px-3 py-2 bg-teal-wash border border-teal-border rounded-xl text-sm font-semibold text-dark">
                 <Car size={13} className="text-teal" />
-                <span>{s.brand?.name || `Brand #${s.brand_id}`}</span>
+                <span>{s.brand?.name || `${t('search.brand')} #${s.brand_id}`}</span>
                 {s.model && <span className="text-muted">· {s.model.name}</span>}
                 <button onClick={() => removeSpec(s.id)} disabled={removingId === s.id}
                   className="ml-1 text-muted hover:text-red-500 transition-colors disabled:opacity-50">
@@ -301,21 +289,21 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
           <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5">
             <AlertCircle size={16} className="text-amber-600 mt-0.5 shrink-0" />
             <div className="text-sm">
-              <p className="font-bold text-dark">No specializations added yet</p>
-              <p className="text-muted">Add car brands below to start receiving requests from matching customers.</p>
+              <p className="font-bold text-dark">{t('supplierPanel.noSpecsYet')}</p>
+              <p className="text-muted">{t('supplierPanel.noSpecsDesc')}</p>
             </div>
           </div>
         )}
 
         {/* Add new */}
         <div className="border border-teal-border rounded-xl p-4 bg-teal-wash/50">
-          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-3">Add Brand / Model</p>
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-3">{t('supplierPanel.addBrandModelLabel')}</p>
           <div className="flex gap-3 flex-wrap">
             <div className="flex-1 min-w-[160px]">
               <div className="input-wrap">
                 <select value={selBrand} onChange={(e) => setSelBrand(e.target.value)}
                   className="bg-white appearance-none">
-                  <option value="">Select brand *</option>
+                  <option value="">{t('supplierPanel.selectBrandRequired')}</option>
                   {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
                 <span className="input-end"><ChevronDown size={13} /></span>
@@ -326,7 +314,7 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
                 <select value={selModel} onChange={(e) => setSelModel(e.target.value)}
                   disabled={!selBrand || models.length === 0}
                   className="bg-white appearance-none disabled:opacity-50">
-                  <option value="">All models (optional)</option>
+                  <option value="">{t('supplierPanel.allModelsOptional')}</option>
                   {models.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
                 </select>
                 <span className="input-end"><ChevronDown size={13} /></span>
@@ -336,7 +324,7 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
               className="btn-teal px-5 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
               {addingSpec
                 ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                : <><Plus size={15} /> Add</>
+                : <><Plus size={15} /> {t('supplierPanel.addBtn')}</>
               }
             </button>
           </div>
@@ -352,8 +340,8 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
               <Tag size={20} className="text-teal" />
             </div>
             <div>
-              <h3 className="font-black text-dark">Part Categories</h3>
-              <p className="text-sm text-muted mt-0.5">Select the part categories you sell. Customers can filter by category.</p>
+              <h3 className="font-black text-dark">{t('supplierPanel.partCategoriesTitle')}</h3>
+              <p className="text-sm text-muted mt-0.5">{t('supplierPanel.partCategoriesDesc')}</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mb-5">
@@ -370,11 +358,11 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
           <div className="flex items-center gap-3">
             <button onClick={saveCats} disabled={savingCats || !shop}
               className="btn-teal px-6 disabled:opacity-50">
-              {savingCats ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Save Categories'}
+              {savingCats ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : t('supplierPanel.saveCategories')}
             </button>
-            {!shop && <span className="text-xs text-muted">Create your shop first</span>}
+            {!shop && <span className="text-xs text-muted">{t('supplierPanel.createShopFirstHint')}</span>}
             {catsMsg && (
-              <span className={`text-sm font-semibold ${catsMsg === 'Saved!' ? 'text-teal' : 'text-red-500'}`}>{catsMsg}</span>
+              <span className={`text-sm font-semibold ${catsMsg === t('supplierPanel.savedMsg') ? 'text-teal' : 'text-red-500'}`}>{catsMsg}</span>
             )}
           </div>
         </div>
@@ -387,8 +375,8 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
             <Settings size={20} className="text-teal" />
           </div>
           <div>
-            <h3 className="font-black text-dark">{shop ? 'Edit Shop' : 'Create Your Shop'}</h3>
-            <p className="text-sm text-muted mt-0.5">Your public storefront visible to all buyers</p>
+            <h3 className="font-black text-dark">{shop ? t('supplierPanel.editShopTitle') : t('supplierPanel.createShopTitle')}</h3>
+            <p className="text-sm text-muted mt-0.5">{t('supplierPanel.storefrontDesc')}</p>
           </div>
         </div>
         {shop && (
@@ -402,7 +390,7 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
               )}
             </div>
             <label className="btn-secondary px-4 py-2 text-sm cursor-pointer">
-              {uploadingCover ? <span className="w-4 h-4 border-2 border-teal-border border-t-teal rounded-full animate-spin" /> : 'Upload Cover Photo'}
+              {uploadingCover ? <span className="w-4 h-4 border-2 border-teal-border border-t-teal rounded-full animate-spin" /> : t('supplierPanel.uploadCoverPhoto')}
               <input type="file" accept="image/*" hidden disabled={uploadingCover}
                 onChange={(e) => e.target.files?.[0] && handleCoverUpload(e.target.files[0])} />
             </label>
@@ -410,32 +398,32 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
         )}
         <form onSubmit={saveShop} className="space-y-4">
           <div>
-            <label className="field-label">Shop Name *</label>
+            <label className="field-label">{t('supplierPanel.shopNameLabel')}</label>
             <div className="input-wrap">
               <input value={shopForm.name} onChange={(e) => setShopForm(p => ({ ...p, name: e.target.value }))}
-                placeholder="e.g. AutoParts Tbilisi" required />
+                placeholder={t('auth.businessNamePlaceholder')} required />
             </div>
           </div>
           <div>
-            <label className="field-label">Description</label>
+            <label className="field-label">{t('supplierPanel.descriptionLabel')}</label>
             <textarea value={shopForm.description}
               onChange={(e) => setShopForm(p => ({ ...p, description: e.target.value }))}
-              placeholder="What do you specialize in?" rows={2} className="input-base resize-none" />
+              placeholder={t('supplierPanel.specializeDescPlaceholder')} rows={2} className="input-base resize-none" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="field-label">City *</label>
+              <label className="field-label">{t('supplierPanel.cityRequired')}</label>
               <div className="input-wrap">
                 <select value={shopForm.city} onChange={(e) => setShopForm(p => ({ ...p, city: e.target.value }))}
                   className="bg-white appearance-none" required>
-                  <option value="">Select city</option>
+                  <option value="">{t('dashboardRequest.selectCityOption')}</option>
                   {CITIES.map((c) => <option key={c}>{c}</option>)}
                 </select>
                 <span className="input-end"><ChevronDown size={13} /></span>
               </div>
             </div>
             <div>
-              <label className="field-label">Phone *</label>
+              <label className="field-label">{t('dashboardRequest.phoneLabelRequired')}</label>
               <div className="input-wrap">
                 <input type="tel" value={shopForm.phone}
                   onChange={(e) => setShopForm(p => ({ ...p, phone: e.target.value }))}
@@ -444,11 +432,11 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
             </div>
           </div>
           <div>
-            <label className="field-label">Address</label>
+            <label className="field-label">{t('supplierPanel.addressLabel')}</label>
             <div className="input-wrap">
               <input value={shopForm.address}
                 onChange={(e) => setShopForm(p => ({ ...p, address: e.target.value }))}
-                placeholder="Street address" />
+                placeholder={t('supplierPanel.addressPlaceholder')} />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -456,11 +444,11 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
               className="btn-teal px-8 disabled:opacity-50">
               {savingShop
                 ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                : shop ? 'Save Changes' : 'Create Shop'
+                : shop ? t('supplierPanel.saveChanges') : t('supplierPanel.createShopBtn')
               }
             </button>
             {shopMsg && (
-              <span className={`text-sm font-semibold ${shopMsg === 'Saved!' ? 'text-teal' : 'text-red-500'}`}>
+              <span className={`text-sm font-semibold ${shopMsg === t('supplierPanel.savedMsg') ? 'text-teal' : 'text-red-500'}`}>
                 {shopMsg}
               </span>
             )}
@@ -476,9 +464,9 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
               {shop.is_active ? <Eye size={20} className="text-teal" /> : <EyeOff size={20} className="text-teal" />}
             </div>
             <div>
-              <h3 className="font-black text-dark">Shop Visibility</h3>
+              <h3 className="font-black text-dark">{t('supplierPanel.shopVisibilityTitle')}</h3>
               <p className="text-sm text-muted mt-0.5">
-                {shop.is_active ? 'Your shop is visible to buyers on partz.ge' : 'Your shop is hidden — buyers cannot find or order from it'}
+                {shop.is_active ? t('supplierPanel.shopVisibleDesc') : t('supplierPanel.shopHiddenDesc')}
               </p>
             </div>
           </div>
@@ -488,22 +476,22 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
                 className={`w-11 h-6 rounded-full transition-colors ${shop.is_active ? 'bg-teal' : 'bg-teal-border'} relative ${togglingVisibility ? 'opacity-50' : ''}`}>
                 <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${shop.is_active ? 'translate-x-6' : 'translate-x-1'}`} />
               </div>
-              <span className="text-sm font-bold text-dark">{shop.is_active ? 'Enabled' : 'Disabled'}</span>
+              <span className="text-sm font-bold text-dark">{shop.is_active ? t('supplierPanel.enabled') : t('supplierPanel.disabled')}</span>
             </label>
 
             {!confirmingDelete ? (
               <button onClick={() => setConfirmingDelete(true)}
                 className="flex items-center gap-1.5 text-sm font-bold text-red-500 hover:text-red-600 transition-colors">
-                <Trash2 size={14} /> Delete Shop
+                <Trash2 size={14} /> {t('supplierPanel.deleteShop')}
               </button>
             ) : (
               <div className="flex items-center gap-2">
                 <button onClick={handleDeleteShop} disabled={deletingShop}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-bold hover:bg-red-600 transition-colors disabled:opacity-50">
-                  {deletingShop ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Confirm Delete'}
+                  {deletingShop ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : t('supplierPanel.confirmDeleteBtn')}
                 </button>
                 <button onClick={() => { setConfirmingDelete(false); setDeleteErr(''); }} className="text-xs font-semibold text-muted hover:text-dark">
-                  Cancel
+                  {t('common.cancel')}
                 </button>
               </div>
             )}
@@ -524,6 +512,7 @@ function SetupTab({ user, shop, onShopChange }: { user: any; shop: any; onShopCh
 function PartFormModal({ existing, categories, brands, onClose, onSaved }: {
   existing: any; categories: any[]; brands: any[]; onClose: () => void; onSaved: () => void;
 }) {
+  const { t } = useLanguage();
   const [name, setName] = useState(existing?.name || '');
   const [description, setDescription] = useState(existing?.description || '');
   const [price, setPrice] = useState(existing?.price ? String(existing.price) : '');
@@ -575,7 +564,7 @@ function PartFormModal({ existing, categories, brands, onClose, onSaved }: {
       else await partsApi.create(dto);
       onSaved();
     } catch (e: any) {
-      setErr(e.message || 'Failed to save part');
+      setErr(e.message || t('supplierPanel.failedSavePart'));
     } finally {
       setSaving(false);
     }
@@ -587,39 +576,39 @@ function PartFormModal({ existing, categories, brands, onClose, onSaved }: {
     <div className="fixed inset-0 bg-dark/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl w-full max-w-2xl p-7 card-shadow border border-teal-border my-8">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="font-black text-dark text-lg">{existing ? 'Edit Part' : 'Add Part'}</h3>
+          <h3 className="font-black text-dark text-lg">{existing ? t('supplierPanel.editPartTitle') : t('supplierPanel.addPartTitle')}</h3>
           <button onClick={onClose} className="text-muted hover:text-dark transition-colors p-1 text-xl leading-none">×</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="field-label">Part Name *</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} required className="input-base" placeholder="e.g. BMW E46 Front Bumper OEM" />
+            <label className="field-label">{t('supplierPanel.partNameLabel')}</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} required className="input-base" placeholder={t('supplierPanel.partNamePlaceholder')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="field-label">Price (₾) *</label>
+              <label className="field-label">{t('supplierPanel.priceLabel')}</label>
               <input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required className="input-base" />
             </div>
             <div>
-              <label className="field-label">Stock Quantity</label>
+              <label className="field-label">{t('supplierPanel.stockQtyLabel')}</label>
               <input type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} className="input-base" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="field-label">Condition *</label>
+              <label className="field-label">{t('supplierPanel.conditionRequired')}</label>
               <div className="input-wrap">
                 <select value={condition} onChange={(e) => setCondition(e.target.value)} className="bg-white appearance-none">
-                  <option value="new">New</option>
-                  <option value="used">Used</option>
+                  <option value="new">{t('product.new')}</option>
+                  <option value="used">{t('product.used')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="field-label">Category</label>
+              <label className="field-label">{t('search.category')}</label>
               <div className="input-wrap">
                 <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="bg-white appearance-none">
-                  <option value="">Select category</option>
+                  <option value="">{t('supplierPanel.selectCategoryOption')}</option>
                   {topCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
@@ -627,42 +616,42 @@ function PartFormModal({ existing, categories, brands, onClose, onSaved }: {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="field-label">Brand</label>
+              <label className="field-label">{t('search.brand')}</label>
               <div className="input-wrap">
                 <select value={brandId} onChange={(e) => { setBrandId(e.target.value); setModelId(''); }} className="bg-white appearance-none">
-                  <option value="">Any</option>
+                  <option value="">{t('supplierPanel.anyOption')}</option>
                   {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </div>
             </div>
             <div>
-              <label className="field-label">Model</label>
+              <label className="field-label">{t('request.model')}</label>
               <div className="input-wrap">
                 <select value={modelId} onChange={(e) => setModelId(e.target.value)} disabled={!brandId} className="bg-white appearance-none disabled:opacity-50">
-                  <option value="">Any</option>
+                  <option value="">{t('supplierPanel.anyOption')}</option>
                   {models.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
                 </select>
               </div>
             </div>
             <div>
-              <label className="field-label">Year</label>
-              <input value={year} onChange={(e) => setYear(e.target.value)} placeholder="2003-2006" className="input-base" />
+              <label className="field-label">{t('request.year')}</label>
+              <input value={year} onChange={(e) => setYear(e.target.value)} placeholder={t('supplierPanel.yearPlaceholder')} className="input-base" />
             </div>
           </div>
           <div>
-            <label className="field-label">Part Number</label>
-            <input value={partNumber} onChange={(e) => setPartNumber(e.target.value)} className="input-base" placeholder="Optional" />
+            <label className="field-label">{t('supplierPanel.partNumberLabel')}</label>
+            <input value={partNumber} onChange={(e) => setPartNumber(e.target.value)} className="input-base" placeholder={t('supplierPanel.optionalPlaceholder')} />
           </div>
           <div>
-            <label className="field-label">Description</label>
+            <label className="field-label">{t('supplierPanel.descriptionLabel')}</label>
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="input-base resize-none" />
           </div>
           <div>
-            <label className="field-label">Photos</label>
+            <label className="field-label">{t('supplierPanel.photosLabel')}</label>
             <div onClick={() => fileRef.current?.click()}
               className="border-2 border-dashed border-teal-border rounded-xl p-5 text-center cursor-pointer hover:border-teal/50 hover:bg-teal-wash/50 transition-all">
               <Camera size={22} className="mx-auto mb-1.5 text-dark/30" />
-              <p className="text-xs font-medium text-muted">{uploading ? 'Uploading…' : 'Click to upload photos (max 6)'}</p>
+              <p className="text-xs font-medium text-muted">{uploading ? t('request.uploading') : t('supplierPanel.clickUploadPhotos')}</p>
               <input ref={fileRef} type="file" accept="image/*" multiple hidden disabled={uploading}
                 onChange={(e) => handleFiles(e.target.files)} />
             </div>
@@ -684,10 +673,10 @@ function PartFormModal({ existing, categories, brands, onClose, onSaved }: {
           {err && <p className="text-sm text-red-500 font-semibold">{err}</p>}
           <div className="flex gap-3">
             <button type="submit" disabled={saving || !name || !price} className="btn-primary flex-1 py-3 justify-center disabled:opacity-50">
-              {saving ? <span className="w-4 h-4 border-2 border-dark/20 border-t-dark rounded-full animate-spin" /> : existing ? 'Save Changes' : 'Add Part'}
+              {saving ? <span className="w-4 h-4 border-2 border-dark/20 border-t-dark rounded-full animate-spin" /> : existing ? t('supplierPanel.saveChanges') : t('supplierPanel.addPartTitle')}
             </button>
             <button type="button" onClick={onClose} className="px-6 py-3 border-2 border-teal-border rounded-xl text-sm font-bold text-muted hover:border-teal hover:text-dark transition-colors">
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>
@@ -697,6 +686,7 @@ function PartFormModal({ existing, categories, brands, onClose, onSaved }: {
 }
 
 function InventoryTab({ shop }: { shop: any }) {
+  const { t } = useLanguage();
   const [parts, setParts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
@@ -733,8 +723,8 @@ function InventoryTab({ shop }: { shop: any }) {
     return (
       <div className="text-center py-16 text-muted">
         <Layers size={40} className="mx-auto mb-3 opacity-30" />
-        <p className="font-bold text-dark mb-1">Create your shop first</p>
-        <p className="text-sm">Set up your shop in the Setup tab, then come back to add inventory.</p>
+        <p className="font-bold text-dark mb-1">{t('supplierPanel.createShopFirstTitle')}</p>
+        <p className="text-sm">{t('supplierPanel.createShopFirstDesc')}</p>
       </div>
     );
   }
@@ -747,9 +737,9 @@ function InventoryTab({ shop }: { shop: any }) {
           onSaved={() => { setFormOpen(false); setEditingPart(null); load(); }} />
       )}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-black text-dark">My Inventory</h2>
+        <h2 className="text-xl font-black text-dark">{t('supplierPanel.myInventory')}</h2>
         <button onClick={() => { setEditingPart(null); setFormOpen(true); }} className="btn-primary py-2.5">
-          <Plus size={16} /> Add Part
+          <Plus size={16} /> {t('supplierPanel.addPartTitle')}
         </button>
       </div>
 
@@ -760,9 +750,9 @@ function InventoryTab({ shop }: { shop: any }) {
       ) : parts.length === 0 ? (
         <div className="text-center py-16 text-muted">
           <Layers size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="font-bold text-dark mb-1">No parts in your inventory yet</p>
-          <p className="text-sm mb-4">Add parts so customers can find and buy them directly.</p>
-          <button onClick={() => setFormOpen(true)} className="btn-teal">Add Your First Part</button>
+          <p className="font-bold text-dark mb-1">{t('supplierPanel.noPartsYet')}</p>
+          <p className="text-sm mb-4">{t('supplierPanel.noPartsDesc')}</p>
+          <button onClick={() => setFormOpen(true)} className="btn-teal">{t('supplierPanel.addFirstPart')}</button>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -780,16 +770,16 @@ function InventoryTab({ shop }: { shop: any }) {
                   <h3 className="font-bold text-dark text-sm leading-tight mb-1 line-clamp-2">{p.name}</h3>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-lg font-black text-teal">₾{Number(p.price).toFixed(0)}</span>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-wash text-muted">Stock: {p.stock}</span>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-wash text-muted">{t('supplierPanel.stockLabel')}: {p.stock}</span>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditingPart(p); setFormOpen(true); }}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-teal-border text-xs font-bold text-muted hover:border-teal hover:text-teal transition-colors">
-                      <Edit2 size={12} /> Edit
+                      <Edit2 size={12} /> {t('common.edit')}
                     </button>
                     <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-red-100 text-xs font-bold text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50">
-                      {deletingId === p.id ? <span className="w-3 h-3 border-2 border-red-200 border-t-red-500 rounded-full animate-spin" /> : <><Trash2 size={12} /> Delete</>}
+                      {deletingId === p.id ? <span className="w-3 h-3 border-2 border-red-200 border-t-red-500 rounded-full animate-spin" /> : <><Trash2 size={12} /> {t('common.delete')}</>}
                     </button>
                   </div>
                 </div>
@@ -804,6 +794,29 @@ function InventoryTab({ shop }: { shop: any }) {
 
 export default function SellerDashboard() {
   const router = useRouter();
+  const { t } = useLanguage();
+
+  const reqStatusConfig: Record<string, { label: string; color: string; dot: string }> = {
+    open:      { label: t('supplierPanel.reqStatusNew'),    color: 'bg-teal/10 text-teal border-teal/20',         dot: 'bg-teal' },
+    offered:   { label: t('supplierPanel.reqStatusQuoted'), color: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+    fulfilled: { label: t('dashboard.statusFulfilled'),     color: 'bg-teal/10 text-teal border-teal/20',         dot: 'bg-teal' },
+    closed:    { label: t('dashboard.statusClosed'),        color: 'bg-slate-50 text-slate-400 border-slate-200', dot: 'bg-slate-400' },
+  };
+
+  const orderStatusConfig: Record<string, { label: string; color: string }> = {
+    pending:   { label: t('dashboard.orderPending'),   color: 'bg-yellow/15 text-dark border-yellow/25' },
+    accepted:  { label: t('dashboard.orderAccepted'),  color: 'bg-teal/10 text-teal border-teal/20' },
+    paid:      { label: t('dashboard.orderPaid'),      color: 'bg-teal/10 text-teal border-teal/20' },
+    completed: { label: t('dashboard.orderCompleted'), color: 'bg-teal/10 text-teal border-teal/20' },
+    cancelled: { label: t('dashboard.orderCancelled'), color: 'bg-red-50 text-red-500 border-red-100' },
+  };
+
+  const offerStatusLabel: Record<string, string> = {
+    pending: t('dashboard.orderPending'),
+    accepted: t('dashboard.orderAccepted'),
+    rejected: t('dashboardRequest.offerRejected'),
+  };
+
   const [user, setUser] = useState<any>(null);
   const [tab, setTab] = useState<Tab>('setup');
   const [requests, setRequests] = useState<any[]>([]);
@@ -879,13 +892,13 @@ export default function SellerDashboard() {
       )}
 
       <div className="gradient-teal py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="p-2 rounded-xl bg-white/15 hover:bg-white/25 text-white transition-colors">
               <ChevronLeft size={18} />
             </Link>
             <div>
-              <p className="text-white/60 text-xs">Seller Panel</p>
+              <p className="text-white/60 text-xs">{t('nav.sellerPanel')}</p>
               <h1 className="text-lg font-black text-white">{user.name}</h1>
             </div>
           </div>
@@ -893,28 +906,28 @@ export default function SellerDashboard() {
             {newCount > 0 && (
               <span className="flex items-center gap-2 px-4 py-2 bg-white/15 text-white border border-white/20 rounded-xl text-sm font-bold">
                 <span className="w-2 h-2 rounded-full bg-yellow animate-pulse" />
-                {newCount} new request{newCount > 1 ? 's' : ''}
+                {newCount} {t('supplierPanel.newRequestsCount')}
               </span>
             )}
             {pendingOrders > 0 && (
               <span className="flex items-center gap-2 px-3 py-2 bg-white/15 text-white border border-white/20 rounded-xl text-sm font-bold">
                 <Package size={13} />
-                {pendingOrders} order{pendingOrders > 1 ? 's' : ''}
+                {pendingOrders} {t('supplierPanel.pendingOrdersCount')}
               </span>
             )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'New Requests',   value: String(newCount),    color: 'text-teal',      icon: MessageCircle },
-            { label: 'Pending Orders', value: String(pendingOrders), color: 'text-dark',    icon: Package },
-            { label: 'Completed',      value: String(orders.filter(o => o.status === 'completed').length), color: 'text-teal-dark', icon: CheckCircle },
-            { label: 'Revenue',        value: `₾${totalRevenue.toFixed(0)}`, color: 'text-teal', icon: DollarSign },
+            { label: t('supplierPanel.statNewRequests'),   value: String(newCount),    color: 'text-teal',      icon: MessageCircle },
+            { label: t('supplierPanel.statPendingOrders'), value: String(pendingOrders), color: 'text-dark',    icon: Package },
+            { label: t('supplierPanel.statCompleted'),     value: String(orders.filter(o => o.status === 'completed').length), color: 'text-teal-dark', icon: CheckCircle },
+            { label: t('supplierPanel.statRevenue'),       value: `₾${totalRevenue.toFixed(0)}`, color: 'text-teal', icon: DollarSign },
           ].map(({ label, value, color, icon: Icon }) => (
             <div key={label} className="bg-white rounded-2xl p-5 card-shadow border border-teal-border">
               <Icon size={18} className={`${color} opacity-60 mb-2`} />
@@ -926,12 +939,16 @@ export default function SellerDashboard() {
 
         {/* Tabs */}
         <div className="flex gap-1 bg-teal-wash border border-teal-border rounded-xl p-1 mb-6 w-fit flex-wrap">
-          {(['setup', 'inventory', 'requests', 'quotes', 'orders'] as Tab[]).map((t) => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`px-4 py-2.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 ${tab === t ? 'bg-teal text-white' : 'text-muted hover:text-dark'}`}>
-              {t === 'requests' && newCount > 0 && <span className="w-2 h-2 rounded-full bg-yellow" />}
-              {t === 'orders' && pendingOrders > 0 && <span className="w-2 h-2 rounded-full bg-yellow" />}
-              {t === 'setup' ? 'Setup / Brands' : t.charAt(0).toUpperCase() + t.slice(1)}
+          {(['setup', 'inventory', 'requests', 'quotes', 'orders'] as Tab[]).map((tabKey) => (
+            <button key={tabKey} onClick={() => setTab(tabKey)}
+              className={`px-4 py-2.5 text-sm font-bold rounded-lg transition-all flex items-center gap-1.5 ${tab === tabKey ? 'bg-teal text-white' : 'text-muted hover:text-dark'}`}>
+              {tabKey === 'requests' && newCount > 0 && <span className="w-2 h-2 rounded-full bg-yellow" />}
+              {tabKey === 'orders' && pendingOrders > 0 && <span className="w-2 h-2 rounded-full bg-yellow" />}
+              {tabKey === 'setup' ? t('supplierPanel.tabSetup')
+                : tabKey === 'inventory' ? t('supplierPanel.tabInventory')
+                : tabKey === 'requests' ? t('supplierPanel.tabRequests')
+                : tabKey === 'quotes' ? t('supplierPanel.tabQuotes')
+                : t('supplierPanel.tabOrders')}
             </button>
           ))}
         </div>
@@ -955,9 +972,9 @@ export default function SellerDashboard() {
                 {requests.length === 0 ? (
                   <div className="text-center py-16 text-muted">
                     <MessageCircle size={40} className="mx-auto mb-3 opacity-30" />
-                    <p className="font-bold text-dark mb-1">No matching requests yet</p>
-                    <p className="text-sm mb-4">Add car brands in the <strong>Setup / Brands</strong> tab to start receiving customer requests.</p>
-                    <button onClick={() => setTab('setup')} className="btn-teal">Go to Setup</button>
+                    <p className="font-bold text-dark mb-1">{t('supplierPanel.noMatchingRequests')}</p>
+                    <p className="text-sm mb-4">{t('supplierPanel.addBrandsHintPrefix')} <strong>{t('supplierPanel.addBrandsHintStrong')}</strong> {t('supplierPanel.addBrandsHintSuffix')}</p>
+                    <button onClick={() => setTab('setup')} className="btn-teal">{t('supplierPanel.goToSetup')}</button>
                   </div>
                 ) : (
                   requests.map((r) => {
@@ -980,7 +997,7 @@ export default function SellerDashboard() {
                               )}
                             </div>
                             <p className="text-sm text-muted mb-2">
-                              {r.customer?.name} · {r.customer?.city || 'Unknown city'} · {new Date(r.created_at).toLocaleDateString()}
+                              {r.customer?.name} · {r.customer?.city || t('supplierPanel.unknownCity')} · {new Date(r.created_at).toLocaleDateString()}
                             </p>
                             <p className="text-sm text-muted bg-teal-wash border border-teal-border rounded-lg px-3 py-2">
                               {r.description}
@@ -998,10 +1015,10 @@ export default function SellerDashboard() {
                             <div className="flex gap-2 shrink-0">
                               <button onClick={() => setQuotingRequest(r)}
                                 className="flex items-center gap-1.5 px-4 py-2.5 bg-teal text-white text-sm font-bold rounded-xl hover:bg-teal-dark transition-colors">
-                                <Send size={14} /> Quote
+                                <Send size={14} /> {t('supplierPanel.sendQuote')}
                               </button>
                               <button onClick={() => handleDismiss(r.id)} disabled={dismissingId === r.id}
-                                title="I don't have this part"
+                                title={t('supplierPanel.dontHavePart')}
                                 className="flex items-center gap-1.5 px-3 py-2.5 border border-teal-border text-muted text-sm font-bold rounded-xl hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50">
                                 {dismissingId === r.id ? <span className="w-3.5 h-3.5 border-2 border-teal-border border-t-teal rounded-full animate-spin" /> : <X size={14} />}
                               </button>
@@ -1009,7 +1026,7 @@ export default function SellerDashboard() {
                           )}
                           {r.status === 'offered' && (
                             <div className="shrink-0 text-sm text-muted font-semibold px-3 py-1.5 bg-teal-wash border border-teal-border rounded-lg">
-                              {r.offers?.length || 0} offer(s) sent
+                              {r.offers?.length || 0} {t('supplierPanel.offersSentSuffix')}
                             </div>
                           )}
                         </div>
@@ -1026,8 +1043,8 @@ export default function SellerDashboard() {
                 {requests.filter(r => (r.offers?.length || 0) > 0).length === 0 ? (
                   <div className="text-center py-16 text-muted">
                     <Send size={40} className="mx-auto mb-3 opacity-30" />
-                    <p className="font-bold text-dark mb-1">No quotes sent yet</p>
-                    <p className="text-sm">Send quotes from the Requests tab to see them here.</p>
+                    <p className="font-bold text-dark mb-1">{t('supplierPanel.noQuotesYet')}</p>
+                    <p className="text-sm">{t('supplierPanel.noQuotesDesc')}</p>
                   </div>
                 ) : (
                   requests.filter(r => (r.offers?.length || 0) > 0).flatMap((r) =>
@@ -1035,12 +1052,12 @@ export default function SellerDashboard() {
                       <div key={offer.id} className="bg-white rounded-2xl p-5 card-shadow border border-teal-border flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-dark">{r.brand?.name} {r.model?.name}</h3>
-                          <p className="text-sm text-muted">Customer: {r.customer?.name} · {new Date(offer.created_at).toLocaleDateString()}</p>
+                          <p className="text-sm text-muted">{t('supplierPanel.customerLabel')}: {r.customer?.name} · {new Date(offer.created_at).toLocaleDateString()}</p>
                         </div>
                         <div className="flex items-center gap-4">
                           <span className="text-xl font-black text-teal">₾{Number(offer.price).toFixed(0)}</span>
                           <span className={`text-xs font-bold px-3 py-1.5 rounded-full border ${offer.status === 'accepted' ? 'bg-teal/10 text-teal border-teal/20' : offer.status === 'rejected' ? 'bg-red-50 text-red-400 border-red-100' : 'bg-yellow/15 text-dark border-yellow/25'}`}>
-                            {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
+                            {offerStatusLabel[offer.status] || offer.status}
                           </span>
                         </div>
                       </div>
@@ -1056,8 +1073,8 @@ export default function SellerDashboard() {
                 {orders.length === 0 ? (
                   <div className="text-center py-16 text-muted">
                     <Package size={40} className="mx-auto mb-3 opacity-30" />
-                    <p className="font-bold text-dark mb-1">No orders yet</p>
-                    <p className="text-sm">Orders from buyers will appear here once they purchase your parts.</p>
+                    <p className="font-bold text-dark mb-1">{t('activity.noOrdersYet')}</p>
+                    <p className="text-sm">{t('supplierPanel.noOrdersDesc2')}</p>
                   </div>
                 ) : (
                   orders.map((o) => {
@@ -1067,11 +1084,11 @@ export default function SellerDashboard() {
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <h3 className="font-bold text-dark">Order #{o.id}</h3>
+                              <h3 className="font-bold text-dark">{t('dashboard.orderHash')} #{o.id}</h3>
                               <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${sc.color}`}>{sc.label}</span>
                             </div>
                             <p className="text-sm text-muted">
-                              {o.customer?.name || 'Customer'} · {o.delivery_city} · {o.items?.length || 0} item(s) · {new Date(o.created_at).toLocaleDateString()}
+                              {o.customer?.name || t('shopDetail.customerFallback')} · {o.delivery_city} · {o.items?.length || 0} {t('cart.itemPlural')} · {new Date(o.created_at).toLocaleDateString()}
                             </p>
                           </div>
                           <div className="flex items-center gap-3">
@@ -1081,18 +1098,18 @@ export default function SellerDashboard() {
                                 className="btn-teal py-2 px-4 text-sm disabled:opacity-60">
                                 {accepting === o.id
                                   ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                  : <><CheckCircle size={14} /> Accept</>
+                                  : <><CheckCircle size={14} /> {t('supplierPanel.acceptBtn')}</>
                                 }
                               </button>
                             )}
                             {o.status === 'accepted' && (
                               <span className="text-xs font-semibold px-3 py-1.5 bg-teal-wash border border-teal-border rounded-lg text-muted">
-                                Awaiting delivery confirmation
+                                {t('supplierPanel.awaitingDeliveryConfirmation')}
                               </span>
                             )}
                             {o.status === 'completed' && (
                               <span className="text-xs font-semibold px-3 py-1.5 bg-teal/10 border border-teal/20 rounded-lg text-teal">
-                                Payment Released ✓
+                                {t('supplierPanel.paymentReleasedCheck')} ✓
                               </span>
                             )}
                           </div>
@@ -1100,14 +1117,14 @@ export default function SellerDashboard() {
                         {o.status === 'pending' && (
                           <div className="mt-3 flex items-start gap-2 bg-teal-wash border border-teal/20 rounded-xl p-3 text-sm text-muted">
                             <AlertCircle size={14} className="text-teal mt-0.5 shrink-0" />
-                            <span>Accept to confirm you will ship. Payment is held until buyer confirms delivery.</span>
+                            <span>{t('supplierPanel.acceptShipDesc')}</span>
                           </div>
                         )}
                         {(o.items || []).length > 0 && (
                           <div className="mt-3 space-y-1">
                             {o.items.map((item: any) => (
                               <div key={item.id} className="flex items-center justify-between text-sm text-muted bg-teal-wash rounded-lg px-3 py-2">
-                                <span className="font-semibold text-dark">{item.part?.name || 'Part'}</span>
+                                <span className="font-semibold text-dark">{item.part?.name || t('supplierPanel.partFallback')}</span>
                                 <span>×{item.quantity} · ₾{Number(item.price).toFixed(0)}</span>
                               </div>
                             ))}

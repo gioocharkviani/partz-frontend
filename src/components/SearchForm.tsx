@@ -1,48 +1,104 @@
 'use client';
 
+<<<<<<< HEAD
 import { useState, useRef } from 'react';
 import { Search, X, Zap, ChevronDown, Camera, AlertCircle } from 'lucide-react';
+=======
+import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Search, X, Zap, ChevronDown, Camera, AlertCircle } from 'lucide-react';
+import { shopsApi, vinApi, uploadsApi, requestsApi, getUser, resolveUploadUrl } from '@/lib/api';
+import { useLanguage } from '@/context/LanguageContext';
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
 
-const BRANDS = ['BMW', 'Mercedes-Benz', 'Toyota', 'Volkswagen', 'Audi', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Nissan', 'Opel', 'Peugeot', 'Renault', 'Subaru', 'Mitsubishi'];
-const YEARS = Array.from({ length: 35 }, (_, i) => String(2024 - i));
+const YEARS = Array.from({ length: 35 }, (_, i) => String(2025 - i));
 
 type Mode = 'vin' | 'manual';
 
 interface UploadedFile { name: string; url: string; }
 
 export default function SearchForm() {
+  const router = useRouter();
+  const { t } = useLanguage();
+
+  const [brands, setBrands] = useState<any[]>([]);
+  useEffect(() => { shopsApi.brands().then(setBrands).catch(() => []); }, []);
+
   const [mode, setMode] = useState<Mode>('vin');
   const [vin, setVin] = useState('');
   const [vinLoading, setVinLoading] = useState(false);
   const [vinDecoded, setVinDecoded] = useState(false);
-  const [brand, setBrand] = useState('');
+  const [vinError, setVinError] = useState('');
+  const [brandId, setBrandId] = useState('');
   const [model, setModel] = useState('');
   const [year, setYear] = useState('');
   const [engine, setEngine] = useState('');
   const [description, setDescription] = useState('');
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const brandName = brands.find((b) => String(b.id) === brandId)?.name || '';
+
   const handleVinDecode = async () => {
-    if (vin.length < 17) return;
+    if (vin.trim().length < 5) return;
     setVinLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setBrand('BMW');
-    setModel('3 Series (E46)');
-    setYear('2003');
-    setEngine('2.0L Diesel');
-    setVinDecoded(true);
-    setVinLoading(false);
+    setVinError('');
+    try {
+      const result = await vinApi.decode(vin.trim());
+      if (!result.matched || !result.brand_id) {
+        setVinError(t('heroSearch.vinNotFound'));
+        return;
+      }
+      setBrandId(String(result.brand_id));
+      if (result.model_name) setModel(result.model_name);
+      if (result.year) setYear(result.year);
+      setVinDecoded(true);
+    } catch {
+      setVinError(t('common.error'));
+    } finally {
+      setVinLoading(false);
+    }
   };
 
-  const handleFiles = (incoming: FileList | null) => {
+  const handleFiles = async (incoming: FileList | null) => {
     if (!incoming) return;
-    const newFiles: UploadedFile[] = Array.from(incoming).slice(0, 5 - files.length).map((f) => ({
-      name: f.name,
-      url: URL.createObjectURL(f),
-    }));
-    setFiles((prev) => [...prev, ...newFiles]);
+    setUploading(true);
+    try {
+      for (const f of Array.from(incoming).slice(0, 5 - files.length)) {
+        const { url } = await uploadsApi.upload(f);
+        setFiles((prev) => [...prev, { name: f.name, url }]);
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const user = getUser();
+    if (!user) { router.push('/auth/login?redirect=/'); return; }
+    if (!brandId || !description.trim()) return;
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      const fullDescription = engine.trim()
+        ? `${description.trim()} (${t('heroSearch.engine')}: ${engine.trim()})`
+        : description.trim();
+      await requestsApi.create({
+        brand_id: Number(brandId),
+        year: year || undefined,
+        description: fullDescription,
+        images: files.length ? files.map((f) => f.url) : undefined,
+      });
+      router.push('/dashboard');
+    } catch (err: any) {
+      setSubmitError(err.message || t('common.error'));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -64,15 +120,25 @@ export default function SearchForm() {
           onClick={() => setMode('vin')}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-black transition-all ${mode === 'vin' ? 'bg-teal text-white shadow-md' : 'text-dark hover:bg-white'}`}
         >
+<<<<<<< HEAD
           <Zap size={13} className={mode === 'vin' ? 'fill-white' : ''} />
           VIN Code (Auto-detect)
+=======
+          <Zap size={15} />
+          {t('heroSearch.vinMode')}
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
         </button>
         <button
           onClick={() => setMode('manual')}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-black transition-all ${mode === 'manual' ? 'bg-teal text-white shadow-md' : 'text-dark hover:bg-white'}`}
         >
+<<<<<<< HEAD
           <ChevronDown size={13} />
           Choose Manually
+=======
+          <ChevronDown size={15} />
+          {t('heroSearch.manualMode')}
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
         </button>
       </div>
 
@@ -80,40 +146,57 @@ export default function SearchForm() {
         {/* VIN mode */}
         {mode === 'vin' && (
           <div>
+<<<<<<< HEAD
             <label className="block text-xs font-black text-dark mb-1.5">
               Vehicle Identification Number (VIN)
+=======
+            <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-2">
+              {t('heroSearch.vinLabel')}
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
             </label>
             <div className="flex flex-col sm:flex-row gap-2">
               <div className="relative flex-1">
                 <input
                   value={vin}
-                  onChange={(e) => { setVin(e.target.value.toUpperCase()); setVinDecoded(false); }}
+                  onChange={(e) => { setVin(e.target.value.toUpperCase()); setVinDecoded(false); setVinError(''); }}
                   maxLength={17}
                   placeholder="e.g. WBABF91040LT52395"
                   className="input-base pr-10 font-mono tracking-widest text-sm border-2 border-teal-border focus:border-teal"
                 />
                 {vin && (
-                  <button onClick={() => { setVin(''); setVinDecoded(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-subtle hover:text-dark transition-colors">
+                  <button onClick={() => { setVin(''); setVinDecoded(false); setVinError(''); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-subtle hover:text-dark transition-colors">
                     <X size={14} />
                   </button>
                 )}
               </div>
               <button
                 onClick={handleVinDecode}
+<<<<<<< HEAD
                 disabled={vin.length < 17 || vinLoading}
                 className="px-4 py-2.5 bg-teal text-white text-sm font-black rounded-lg hover:bg-teal-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-sm"
+=======
+                disabled={vin.trim().length < 5 || vinLoading}
+                className="px-5 py-2.5 bg-teal text-white text-sm font-bold rounded-lg hover:bg-teal-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 whitespace-nowrap"
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
               >
                 {vinLoading ? (
-                  <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Decoding...</>
+                  <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t('search.decoding')}</>
                 ) : (
-                  <><Zap size={14} />Decode</>
+                  <><Zap size={14} />{t('heroSearch.decode')}</>
                 )}
               </button>
             </div>
+<<<<<<< HEAD
             <p className="text-xs text-muted mt-1.5 flex items-center gap-1.5">
               <AlertCircle size={12} className="text-teal shrink-0" />
               17-character VIN found on dashboard or vehicle registration
+=======
+            <p className="text-xs text-subtle mt-1.5 flex items-center gap-1">
+              <AlertCircle size={11} />
+              {t('search.vinHint')}
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
             </p>
+            {vinError && <p className="text-xs text-red-500 font-semibold mt-1.5">{vinError}</p>}
           </div>
         )}
 
@@ -121,6 +204,7 @@ export default function SearchForm() {
         {(vinDecoded || mode === 'manual') && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
+<<<<<<< HEAD
               <label className="block text-xs font-black text-dark mb-1">Brand</label>
               <select value={brand} onChange={(e) => setBrand(e.target.value)} className="input-base bg-white appearance-none border-2 border-teal-border focus:border-teal">
                 <option value="">Select Brand</option>
@@ -135,16 +219,38 @@ export default function SearchForm() {
               <label className="block text-xs font-black text-dark mb-1">Year</label>
               <select value={year} onChange={(e) => setYear(e.target.value)} className="input-base bg-white appearance-none border-2 border-teal-border focus:border-teal">
                 <option value="">Select Year</option>
+=======
+              <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">{t('heroSearch.brand')}</label>
+              <select value={brandId} onChange={(e) => setBrandId(e.target.value)} className="input-base bg-white appearance-none">
+                <option value="">{t('search.selectBrand')}</option>
+                {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">{t('heroSearch.model')}</label>
+              <input value={model} onChange={(e) => setModel(e.target.value)} placeholder={t('heroSearch.modelPlaceholder')} className="input-base" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">{t('heroSearch.year')}</label>
+              <select value={year} onChange={(e) => setYear(e.target.value)} className="input-base bg-white appearance-none">
+                <option value="">{t('heroSearch.selectYear')}</option>
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
                 {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
               </select>
             </div>
             <div>
+<<<<<<< HEAD
               <label className="block text-xs font-black text-dark mb-1">Engine</label>
               <input value={engine} onChange={(e) => setEngine(e.target.value)} placeholder="e.g. 2.0L Diesel, 1.6T" className="input-base border-2 border-teal-border focus:border-teal" />
+=======
+              <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">{t('heroSearch.engine')}</label>
+              <input value={engine} onChange={(e) => setEngine(e.target.value)} placeholder={t('heroSearch.enginePlaceholder')} className="input-base" />
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
             </div>
           </div>
         )}
 
+<<<<<<< HEAD
         {vinDecoded && (
           <div className="flex items-center gap-2 p-2.5 bg-teal-wash rounded-lg border-2 border-teal/25 text-xs text-teal-dark font-bold">
             <Zap size={13} className="fill-teal text-teal shrink-0" />
@@ -183,6 +289,65 @@ export default function SearchForm() {
               <p className="text-xs font-bold text-dark">Drop photos here or <span className="text-teal font-black">browse</span></p>
               <p className="text-[11px] text-muted mt-0.5">PNG, JPG up to 10MB · max 5 files</p>
               <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={(e) => handleFiles(e.target.files)} />
+=======
+        {vinDecoded && brandName && (
+          <div className="flex items-center gap-2 p-3 bg-teal/10 rounded-xl border border-teal/20 text-sm text-teal font-semibold">
+            <Zap size={14} className="fill-teal" />
+            {t('heroSearch.vehicleDetected')}: {brandName} {model} {year}
+          </div>
+        )}
+
+        {/* Description */}
+        <div>
+          <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">
+            {t('heroSearch.descLabel')}
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            placeholder={t('heroSearch.descPlaceholder')}
+            className="input-base resize-none"
+          />
+        </div>
+
+        {/* Photo upload */}
+        <div>
+          <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">
+            {t('heroSearch.uploadLabel')} <span className="text-subtle font-normal normal-case">({t('heroSearch.uploadSub')})</span>
+          </label>
+          <div
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
+            onClick={() => fileRef.current?.click()}
+            className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${dragOver ? 'border-teal bg-teal/5' : 'border-teal-border hover:border-teal/50 hover:bg-teal-wash'}`}
+          >
+            <Camera size={24} className="mx-auto mb-2 text-subtle" />
+            <p className="text-sm font-medium text-muted">
+              {uploading ? t('request.uploading') : (
+                <>{t('heroSearch.dropHere')} <span className="text-teal font-bold">{t('heroSearch.browse')}</span></>
+              )}
+            </p>
+            <p className="text-xs text-subtle mt-0.5">PNG, JPG · {t('heroSearch.maxFiles')}</p>
+            <input ref={fileRef} type="file" accept="image/*" multiple hidden disabled={uploading} onChange={(e) => handleFiles(e.target.files)} />
+          </div>
+
+          {files.length > 0 && (
+            <div className="flex gap-2 mt-3 flex-wrap">
+              {files.map((f, i) => (
+                <div key={i} className="relative group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={resolveUploadUrl(f.url)} alt={f.name} className="w-16 h-16 object-cover rounded-lg border-2 border-teal-border" />
+                  <button
+                    onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-teal text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
             </div>
 
             {files.length > 0 && (
@@ -203,10 +368,29 @@ export default function SearchForm() {
           </div>
         </div>
 
+        {submitError && (
+          <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold">
+            {submitError}
+          </div>
+        )}
+
         {/* Submit */}
+<<<<<<< HEAD
         <button className="btn-primary w-full text-sm py-3 rounded-lg justify-center shadow-md mt-2">
           <Search size={16} />
           Find My Part
+=======
+        <button
+          onClick={handleSubmit}
+          disabled={!brandId || !description.trim() || submitting}
+          className="btn-primary w-full text-base py-4 rounded-xl justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {submitting ? (
+            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <><Search size={18} /> {t('heroSearch.submit')}</>
+          )}
+>>>>>>> 451dbd2dd5ca74f05b7b85c8bbab38be61d9b87a
         </button>
       </div>
     </div>

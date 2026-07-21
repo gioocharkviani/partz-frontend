@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { MapPin, Package, CheckCircle, Star } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Shop {
   id: number;
@@ -22,6 +25,7 @@ const SHOP_COVERS = [
 ];
 
 export default function ShopCard({ shop }: { shop: Shop }) {
+  const { t } = useLanguage();
   const cover = shop.coverImage || SHOP_COVERS[(shop.id - 1) % SHOP_COVERS.length];
 
   return (
@@ -50,7 +54,7 @@ export default function ShopCard({ shop }: { shop: Shop }) {
           {shop.verified && (
             <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-white/95 text-teal text-xs font-bold px-2 py-0.5 rounded-full shadow">
               <CheckCircle size={10} className="text-teal" />
-              Verified
+              {t('shop.verified')}
             </div>
           )}
         </div>
@@ -60,7 +64,7 @@ export default function ShopCard({ shop }: { shop: Shop }) {
           <div className="flex items-center gap-2 mb-3">
             <Star size={13} className="fill-yellow text-yellow" />
             <span className="text-sm font-bold text-dark">{shop.rating}</span>
-            <span className="text-xs text-subtle">({shop.reviewCount} reviews)</span>
+            <span className="text-xs text-subtle">({shop.reviewCount} {t('shop.reviews')})</span>
           </div>
 
           <div className="flex flex-wrap gap-1.5 mb-3">
@@ -75,10 +79,10 @@ export default function ShopCard({ shop }: { shop: Shop }) {
             {shop.productCount != null ? (
               <div className="flex items-center gap-1.5 text-xs text-muted">
                 <Package size={11} />
-                <span>{shop.productCount} products</span>
+                <span>{shop.productCount} {t('shop.products')}</span>
               </div>
             ) : <span />}
-            <span className="text-xs font-bold text-teal group-hover:underline">Visit →</span>
+            <span className="text-xs font-bold text-teal group-hover:underline">{t('shop.visit')} →</span>
           </div>
         </div>
       </div>

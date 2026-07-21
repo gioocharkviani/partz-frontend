@@ -17,6 +17,7 @@ import {
 import { useCart } from "@/context/CartContext";
 import { getUser, logout } from "@/lib/api";
 import { useSocketEvent, refreshSocketAuth } from "@/lib/socket";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Notification {
   id: string;
@@ -25,22 +26,23 @@ interface Notification {
   time: number;
 }
 
-const navLinks = [
-  { href: "/shops", label: "Shops" },
-  { href: "/parts", label: "Parts" },
-  { href: "/about", label: "About Us" },
-  { href: "/contact", label: "Contact" },
-];
-
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { locale, setLocale, t } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { count } = useCart();
+
+  const navLinks = [
+    { href: "/shops", label: t("nav.shops") },
+    { href: "/parts", label: t("nav.parts") },
+    { href: "/about", label: t("nav.about") },
+    { href: "/contact", label: t("nav.contact") },
+  ];
 
   useEffect(() => {
     setCurrentUser(getUser());
@@ -57,25 +59,25 @@ export default function Navbar() {
 
   useSocketEvent("new-request", () =>
     pushNotification({
-      text: "New part request matches your shop",
+      text: t("nav.notifNewRequest"),
       href: "/dashboard/supplier",
     }),
   );
   useSocketEvent("offer-received", () =>
     pushNotification({
-      text: "A seller sent you a new offer",
+      text: t("nav.notifOfferReceived"),
       href: "/dashboard",
     }),
   );
   useSocketEvent("offer-accepted", () =>
     pushNotification({
-      text: "Your offer was accepted!",
+      text: t("nav.notifOfferAccepted"),
       href: "/dashboard/supplier",
     }),
   );
   useSocketEvent("order-accepted", () =>
     pushNotification({
-      text: "Your order was accepted by the seller",
+      text: t("nav.notifOrderAccepted"),
       href: "/dashboard",
     }),
   );
@@ -92,9 +94,29 @@ export default function Navbar() {
 
   const isSeller = currentUser?.role === "seller";
 
+  const LangSwitcher = ({ compact = false }: { compact?: boolean }) => (
+    <div
+      className={`flex items-center rounded-full border border-teal-border bg-teal-wash p-0.5 ${compact ? "" : ""}`}
+    >
+      {(["ka", "en"] as const).map((l) => (
+        <button
+          key={l}
+          onClick={() => setLocale(l)}
+          className={`px-2.5 py-1 text-xs font-bold rounded-full transition-colors ${
+            locale === l ? "bg-teal text-white" : "text-muted hover:text-dark"
+          }`}
+        >
+          {l.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (pathname?.startsWith("/auth/register")) return null;
+
   return (
     <header className="sticky top-0 z-50 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center justify-between h-14 px-3 sm:px-5 rounded-full border border-teal-border shadow-sm bg-white">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
@@ -121,6 +143,8 @@ export default function Navbar() {
 
           {/* Right actions */}
           <div className="hidden md:flex items-center gap-2">
+            <LangSwitcher />
+
             {/* Notifications */}
             {currentUser && (
               <div className="relative">
@@ -144,7 +168,7 @@ export default function Navbar() {
                     <div className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-2xl shadow-xl py-2 border border-teal-border z-20">
                       {notifications.length === 0 ? (
                         <p className="px-4 py-6 text-sm text-muted text-center">
-                          No notifications yet
+                          {t("nav.noNotifications")}
                         </p>
                       ) : (
                         notifications.map((n) => (
@@ -218,7 +242,9 @@ export default function Navbar() {
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-dark hover:bg-teal-wash transition-colors"
                       >
                         <LayoutDashboard size={15} className="text-teal" />
-                        <span className="font-semibold">Dashboard</span>
+                        <span className="font-semibold">
+                          {t("nav.dashboard")}
+                        </span>
                       </Link>
                       {isSeller && (
                         <Link
@@ -227,7 +253,9 @@ export default function Navbar() {
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-dark hover:bg-teal-wash transition-colors"
                         >
                           <Store size={15} className="text-teal" />
-                          <span className="font-semibold">Seller Panel</span>
+                          <span className="font-semibold">
+                            {t("nav.sellerPanel")}
+                          </span>
                         </Link>
                       )}
                       <div className="border-t border-teal-border my-1" />
@@ -236,7 +264,9 @@ export default function Navbar() {
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
                       >
                         <LogOut size={15} />
-                        <span className="font-semibold">Sign Out</span>
+                        <span className="font-semibold">
+                          {t("nav.signOut")}
+                        </span>
                       </button>
                     </div>
                   </>
@@ -249,13 +279,13 @@ export default function Navbar() {
                   href="/auth/login"
                   className="px-5 py-2 text-sm font-semibold text-dark bg-teal-wash rounded-full hover:bg-teal-border transition-colors"
                 >
-                  Log In
+                  {t("nav.signIn")}
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="px-5 py-2 text-sm font-bold text-white bg-purple rounded-full hover:bg-purple-dark transition-colors"
+                  className="px-5 py-2 text-sm font-bold text-purple-dark bg-bright-green rounded-full transition-colors"
                 >
-                  Register
+                  {t("nav.register")}
                 </Link>
               </div>
             )}
@@ -263,6 +293,7 @@ export default function Navbar() {
 
           {/* Mobile toggle */}
           <div className="md:hidden flex items-center gap-2">
+            <LangSwitcher compact />
             <Link
               href="/cart"
               className="relative p-2 text-dark rounded-full hover:bg-teal-wash transition-colors"
@@ -320,7 +351,7 @@ export default function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-teal border border-teal-border rounded-xl hover:bg-teal-wash transition-colors"
                     >
-                      <LayoutDashboard size={15} /> Dashboard
+                      <LayoutDashboard size={15} /> {t("nav.dashboard")}
                     </Link>
                     {isSeller && (
                       <Link
@@ -328,14 +359,14 @@ export default function Navbar() {
                         onClick={() => setMobileOpen(false)}
                         className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-teal border border-teal-border rounded-xl hover:bg-teal-wash transition-colors"
                       >
-                        <Store size={15} /> Seller Panel
+                        <Store size={15} /> {t("nav.sellerPanel")}
                       </Link>
                     )}
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold text-red-500 border border-red-100 rounded-xl hover:bg-red-50 transition-colors"
                     >
-                      <LogOut size={15} /> Sign Out
+                      <LogOut size={15} /> {t("nav.signOut")}
                     </button>
                   </>
                 ) : (
@@ -345,14 +376,14 @@ export default function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-dark bg-teal-wash rounded-xl"
                     >
-                      Log In
+                      {t("nav.signIn")}
                     </Link>
                     <Link
                       href="/auth/register"
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white bg-purple rounded-xl"
                     >
-                      Register
+                      {t("nav.register")}
                     </Link>
                   </>
                 )}
